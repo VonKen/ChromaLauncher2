@@ -36,7 +36,7 @@ fun ChromaTopBar(
             }
         },
         actions = {
-            actions?.invoke(this)
+            actions?.invoke()
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background

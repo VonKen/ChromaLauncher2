@@ -30,16 +30,16 @@ object LauncherBridge {
     fun launchGame(version: String): Boolean {
         return try {
             Log.i(TAG, "Launching game version: $version")
+            @Suppress("UNCHANGED_ARGUMENT_VALUE")
             Tools.launchMinecraft(
                 null,
                 null,
                 null,
                 version,
-                "org.lwjgl.opengl.experimental=true",
-                1024
+                0
             )
             true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "Failed to launch game", e)
             false
         }
