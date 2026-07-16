@@ -23,9 +23,6 @@ fun ChromaNavHost() {
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
-            val accountsState by accountViewModel.uiState.collectAsState()
-            mainViewModel.loadAccount()
-
             MainScreen(
                 viewModel = mainViewModel,
                 onPlayClick = {
