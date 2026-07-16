@@ -2,6 +2,7 @@ package com.chromalauncher.app
 
 import android.app.Application
 import android.os.StrictMode
+import net.kdt.pojavlaunch.BuildConfig
 import net.kdt.pojavlaunch.PojavApplication
 import java.io.File
 
