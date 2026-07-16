@@ -11,9 +11,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import net.kdt.pojavlaunch.PojavApplication;
-import net.kdt.pojavlaunch.modloaders.modpacks.SelfReferencingFuture;
 import net.kdt.pojavlaunch.utils.MatrixUtils;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 public class RegionDecoderCropBehaviour extends BitmapCropBehaviour {
@@ -28,15 +28,16 @@ public class RegionDecoderCropBehaviour extends BitmapCropBehaviour {
         RectF subsectionRect = new RectF(0,0, mHostView.getWidth(), mHostView.getHeight());
         RectF overlayDst = new RectF();
         discardDecodeFuture();
-        mDecodeFuture = new SelfReferencingFuture(myFuture -> {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             Bitmap overlayBitmap = decodeRegionBitmap(overlayDst, subsectionRect);
             mHiresLoadHandler.post(()->{
-                if(myFuture.isCancelled()) return;
+                if(Thread.currentThread().isInterrupted()) return;
                 mOverlayBitmap = overlayBitmap;
                 mOverlayDst.set(overlayDst);
                 mHostView.invalidate();
             });
-        }).startOnExecutor(PojavApplication.sExecutorService);
+        }, PojavApplication.sExecutorService);
+        mDecodeFuture = future;
     };
 
     /**

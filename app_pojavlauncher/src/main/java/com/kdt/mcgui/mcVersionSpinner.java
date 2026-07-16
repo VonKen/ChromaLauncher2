@@ -1,7 +1,8 @@
 package com.kdt.mcgui;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static net.kdt.pojavlaunch.fragments.ProfileEditorFragment.DELETED_PROFILE;
+// DELETED_PROFILE removed - no longer needed
+// import static net.kdt.pojavlaunch.fragments.ProfileEditorFragment.DELETED_PROFILE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -25,8 +26,8 @@ import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
-import net.kdt.pojavlaunch.fragments.ProfileEditorFragment;
-import net.kdt.pojavlaunch.fragments.ProfileTypeSelectFragment;
+// REMOVED: import net.kdt.pojavlaunch.fragments.ProfileEditorFragment;
+// REMOVED: import net.kdt.pojavlaunch.fragments.ProfileTypeSelectFragment;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 import net.kdt.pojavlaunch.profiles.ProfileAdapter;
 import net.kdt.pojavlaunch.profiles.ProfileAdapterExtra;
@@ -85,7 +86,7 @@ public class mcVersionSpinner extends ExtendedTextView {
         if(currentSelection instanceof ProfileAdapterExtra) {
             performExtraAction((ProfileAdapterExtra) currentSelection);
         }else{
-            Tools.swapFragment(fragmentActivity, ProfileEditorFragment.class, ProfileEditorFragment.TAG, null);
+            // REMOVED: ProfileEditorFragment
         }
     }
 
@@ -107,8 +108,7 @@ public class mcVersionSpinner extends ExtendedTextView {
         int profileIndex;
         String extra_value = (String) ExtraCore.consumeValue(ExtraConstants.REFRESH_VERSION_SPINNER);
         if(extra_value != null){
-            profileIndex = extra_value.equals(DELETED_PROFILE) ? 0
-                    : getProfileAdapter().resolveProfileIndex(extra_value);
+            profileIndex = getProfileAdapter().resolveProfileIndex(extra_value);
         }else
             profileIndex = mProfileAdapter.resolveProfileIndex(
                     LauncherPreferences.DEFAULT_PREF.getString(LauncherPreferences.PREF_KEY_CURRENT_PROFILE,""));
@@ -136,8 +136,7 @@ public class mcVersionSpinner extends ExtendedTextView {
     private void performExtraAction(ProfileAdapterExtra extra) {
         //Replace with switch-case if you want to add more extra actions
         if (extra.id == VERSION_SPINNER_PROFILE_CREATE) {
-            Tools.swapFragment((FragmentActivity) getContext(), ProfileTypeSelectFragment.class,
-                    ProfileTypeSelectFragment.TAG, null);
+            // REMOVED: ProfileTypeSelectFragment
         }
     }
 

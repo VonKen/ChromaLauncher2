@@ -83,7 +83,7 @@ configurations {
 }
 
 android {
-    namespace 'com.chromalauncher.app'
+    namespace 'net.kdt.pojavlaunch'
 
     compileSdk = 35
 

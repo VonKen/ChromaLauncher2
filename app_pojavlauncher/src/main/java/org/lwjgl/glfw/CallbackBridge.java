@@ -1,6 +1,7 @@
 package org.lwjgl.glfw;
 
-import net.kdt.pojavlaunch.*;
+import net.kdt.pojavlaunch.GameActivity;
+import net.kdt.pojavlaunch.GrabListener;
 import net.kdt.pojavlaunch.customcontrols.gamepad.direct.DirectGamepadEnableHandler;
 
 import android.content.*;
@@ -15,8 +16,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
-
-import dalvik.annotation.optimization.CriticalNative;
 
 public class CallbackBridge {
     public static final Choreographer sChoreographer = Choreographer.getInstance();
@@ -120,18 +119,18 @@ public class CallbackBridge {
     public static @Nullable String accessAndroidClipboard(int type, String copy) {
         switch (type) {
             case CLIPBOARD_COPY:
-                MainActivity.GLOBAL_CLIPBOARD.setPrimaryClip(ClipData.newPlainText("Copy", copy));
+                GameActivity.GLOBAL_CLIPBOARD.setPrimaryClip(ClipData.newPlainText("Copy", copy));
                 return null;
 
             case CLIPBOARD_PASTE:
-                if (MainActivity.GLOBAL_CLIPBOARD.hasPrimaryClip() && MainActivity.GLOBAL_CLIPBOARD.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
-                    return MainActivity.GLOBAL_CLIPBOARD.getPrimaryClip().getItemAt(0).getText().toString();
+                if (GameActivity.GLOBAL_CLIPBOARD.hasPrimaryClip() && GameActivity.GLOBAL_CLIPBOARD.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                    return GameActivity.GLOBAL_CLIPBOARD.getPrimaryClip().getItemAt(0).getText().toString();
                 } else {
                     return "";
                 }
 
             case CLIPBOARD_OPEN:
-                MainActivity.openLink(copy);
+                GameActivity.openLink(copy);
                 return null;
             default: return null;
         }
@@ -226,17 +225,17 @@ public class CallbackBridge {
         sDirectGamepadEnableHandler = new WeakReference<>(h);
     }
 
-    @Keep @CriticalNative public static native void nativeSetUseInputStackQueue(boolean useInputStackQueue);
+    @Keep public static native void nativeSetUseInputStackQueue(boolean useInputStackQueue);
 
-    @Keep @CriticalNative private static native boolean nativeSendChar(char codepoint);
+    @Keep private static native boolean nativeSendChar(char codepoint);
     // GLFW: GLFWCharModsCallback deprecated, but is Minecraft still use?
-    @Keep @CriticalNative private static native boolean nativeSendCharMods(char codepoint, int mods);
-    @Keep @CriticalNative private static native void nativeSendKey(int key, int scancode, int action, int mods);
+    @Keep private static native boolean nativeSendCharMods(char codepoint, int mods);
+    @Keep private static native void nativeSendKey(int key, int scancode, int action, int mods);
     // private static native void nativeSendCursorEnter(int entered);
-    @Keep @CriticalNative private static native void nativeSendCursorPos(float x, float y);
-    @Keep @CriticalNative private static native void nativeSendMouseButton(int button, int action, int mods);
-    @Keep @CriticalNative private static native void nativeSendScroll(double xoffset, double yoffset);
-    @Keep @CriticalNative private static native void nativeSendScreenSize(int width, int height);
+    @Keep private static native void nativeSendCursorPos(float x, float y);
+    @Keep private static native void nativeSendMouseButton(int button, int action, int mods);
+    @Keep private static native void nativeSendScroll(double xoffset, double yoffset);
+    @Keep private static native void nativeSendScreenSize(int width, int height);
     public static native void nativeSetWindowAttrib(int attrib, int value);
     private static native ByteBuffer nativeCreateGamepadButtonBuffer();
     private static native ByteBuffer nativeCreateGamepadAxisBuffer();
