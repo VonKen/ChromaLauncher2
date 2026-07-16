@@ -1,12 +1,12 @@
 package net.kdt.pojavlaunch.lifecycle;
 
-import static net.kdt.pojavlaunch.MainActivity.INTENT_MINECRAFT_VERSION;
+import static net.kdt.pojavlaunch.GameActivity.INTENT_MINECRAFT_VERSION;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-import net.kdt.pojavlaunch.MainActivity;
+import net.kdt.pojavlaunch.GameActivity;
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
@@ -25,7 +25,7 @@ public class ContextAwareDoneListener implements AsyncMinecraftDownloader.DoneLi
     }
 
     private Intent createGameStartIntent(Context context) {
-        Intent mainIntent = new Intent(context, MainActivity.class);
+        Intent mainIntent = new Intent(context, GameActivity.class);
         mainIntent.putExtra(INTENT_MINECRAFT_VERSION, mNormalizedVersionid);
         mainIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return mainIntent;

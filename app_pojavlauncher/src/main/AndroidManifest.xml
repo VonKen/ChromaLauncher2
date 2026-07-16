@@ -22,7 +22,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
     <application
-        android:name=".PojavApplication"
+        android:name="net.kdt.pojavlaunch.PojavApplication"
         android:allowBackup="true"
         android:allowNativeHeapPointerTagging="false"
         android:appCategory="game"
@@ -34,85 +34,47 @@
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
-        <activity
-            android:name=".MissingStorageActivity"
-            android:exported="false" />
 
         <meta-data
             android:name="android.max_aspect"
             android:value="ratio_float" />
 
         <activity
-            android:name=".TestStorageActivity"
+            android:name="com.chromalauncher.app.MainActivity"
             android:exported="true"
-            android:label="@string/app_short_name"
-            android:launchMode="singleTop">
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".LauncherActivity"
-            android:label="@string/app_short_name"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
-            android:name=".ImportControlActivity"
-            android:configChanges="keyboard|keyboardHidden"
-            android:exported="true"
-            android:launchMode="singleInstance"
-            android:windowSoftInputMode="stateVisible">
-            <intent-filter
-                android:label="@string/import_control_label"
-                android:scheme="content"
-                tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.SEND" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/json" />
-                <data android:mimeType="text/json" />
-                <data android:mimeType="text/plain" />
-            </intent-filter>
-        </activity>
         <activity
-            android:name=".FatalErrorActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog" />
-        <activity android:name=".ShowErrorActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog" />
-        <activity
-            android:name=".ExitActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
-            android:theme="@style/Theme.AppCompat.DayNight.Dialog" />
-        <activity
-            android:process=":gui_installer"
-            android:name=".JavaGUILauncherActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
-            android:screenOrientation="sensorLandscape" />
-        <activity
-            android:name=".CustomControlsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
-            android:exported="false"
-            android:screenOrientation="sensorLandscape">
-            <intent-filter>
-                <action android:name=".CustomControlsActivity" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainActivity"
+            android:name="net.kdt.pojavlaunch.GameActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:launchMode="singleTop"
             android:process=":game"
             android:screenOrientation="sensorLandscape" />
 
+        <activity
+            android:name="net.kdt.pojavlaunch.JavaGUILauncherActivity"
+            android:process=":gui_installer"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
+            android:screenOrientation="sensorLandscape" />
+
+        <activity
+            android:name="net.kdt.pojavlaunch.FatalErrorActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog" />
+
+        <activity android:name="net.kdt.pojavlaunch.ShowErrorActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
+            android:theme="@style/Theme.AppCompat.DayNight.Dialog" />
+
         <provider
-            android:name=".scoped.FolderProvider"
+            android:name="net.kdt.pojavlaunch.scoped.FolderProvider"
             android:authorities="@string/storageProviderAuthorities"
             android:exported="true"
             android:grantUriPermissions="true"
@@ -122,9 +84,9 @@
             </intent-filter>
         </provider>
 
-        <service android:name=".services.ProgressService"
+        <service android:name="net.kdt.pojavlaunch.services.ProgressService"
             android:foregroundServiceType="dataSync"/>
-        <service android:name=".services.GameService" android:process=":game"
+        <service android:name="net.kdt.pojavlaunch.services.GameService" android:process=":game"
             android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="This application is intended to run a 3rd-party piece of software which cannot be managed using the activity's saved instance state. This service is used for background persistence of this piece of software."/>

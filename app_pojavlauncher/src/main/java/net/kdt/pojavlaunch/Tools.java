@@ -156,14 +156,13 @@ public final class Tools {
     }
 
     /**
-     * Checks if the Pojav's storage root is accessible and read-writable. If it's not, starts
-     * the MissingStorageActivity and finishes the supplied activity.
+     * Checks if the Pojav's storage root is accessible and read-writable.
      * @param context the Activity that checks for storage availability
      * @return whether the storage is available or not.
      */
     public static boolean checkStorageInteractive(Activity context) {
         if(!Tools.checkStorageRoot(context)) {
-            context.startActivity(new Intent(context, MissingStorageActivity.class));
+            android.widget.Toast.makeText(context, "Storage not available", android.widget.Toast.LENGTH_LONG).show();
             context.finish();
             return false;
         }
@@ -736,7 +735,7 @@ public final class Tools {
                     .setMessage(errMsg)
                     .setPositiveButton(android.R.string.ok, (p1, p2) -> {
                         if(exitIfOk) {
-                            if (ctx instanceof MainActivity) {
+                            if (ctx instanceof GameActivity) {
                                 fullyExit();
                             } else if (ctx instanceof Activity) {
                                 ((Activity) ctx).finish();
@@ -748,7 +747,7 @@ public final class Tools {
                         ClipboardManager mgr = (ClipboardManager) ctx.getSystemService(Context.CLIPBOARD_SERVICE);
                         mgr.setPrimaryClip(ClipData.newPlainText("error", printToString(e)));
                         if(exitIfOk) {
-                            if (ctx instanceof MainActivity) {
+                            if (ctx instanceof GameActivity) {
                                 fullyExit();
                             } else {
                                 ((Activity) ctx).finish();
@@ -1151,10 +1150,7 @@ public final class Tools {
         }
 
         if(!customJavaArgs){ // Launch the intent to get the jar file
-            if(!(activity instanceof LauncherActivity))
-                throw new IllegalStateException("Cannot start Mod Installer without LauncherActivity");
-            LauncherActivity launcherActivity = (LauncherActivity)activity;
-            launcherActivity.modInstallerLauncher.launch(null);
+            Toast.makeText(activity, "Mod installer requires Java GUI support", Toast.LENGTH_LONG).show();
             return;
         }
 
