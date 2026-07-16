@@ -2,6 +2,8 @@ package org.lwjgl.glfw;
 
 import net.kdt.pojavlaunch.GameActivity;
 import net.kdt.pojavlaunch.GrabListener;
+import net.kdt.pojavlaunch.LwjglGlfwKeycode;
+import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.customcontrols.gamepad.direct.DirectGamepadEnableHandler;
 
 import android.content.*;
