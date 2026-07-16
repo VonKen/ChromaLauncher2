@@ -1,10 +1,12 @@
 package com.chromalauncher.app
 
 import android.app.Application
+import android.content.Intent
 import android.os.Environment
 import android.os.StrictMode
 import android.util.Log
 import net.kdt.pojavlaunch.BuildConfig
+import net.kdt.pojavlaunch.FatalErrorActivity
 import net.kdt.pojavlaunch.Tools
 import java.io.File
 import java.io.PrintWriter
@@ -16,13 +18,18 @@ class ChromaApplication : Application() {
         super.onCreate()
         instance = this
 
-        Thread.setDefaultUncaughtExceptionHandler { _, th ->
+        Thread.setDefaultUncaughtExceptionHandler { thread, th ->
             try {
                 val crashFile = File(cacheDir, "crash.txt")
                 val sw = StringWriter()
                 th.printStackTrace(PrintWriter(sw))
-                crashFile.writeText("ChromaLauncher Crash\n${sw.toString()}")
+                val crashText = "ChromaLauncher Crash\n${sw.toString()}"
+                crashFile.writeText(crashText)
                 Log.e("ChromaApplication", "Crash saved to ${crashFile.absolutePath}", th)
+            } catch (ignored: Throwable) {}
+
+            try {
+                FatalErrorActivity.showError(this@ChromaApplication, null, false, th)
             } catch (ignored: Throwable) {}
         }
 
@@ -61,6 +68,8 @@ class ChromaApplication : Application() {
         Tools.ASSETS_PATH = extDir.absolutePath + "/assets"
         Tools.OBSOLETE_RESOURCES_PATH = extDir.absolutePath + "/resources"
         Tools.APP_NAME = "ChromaLauncher"
+
+        File(Tools.DIR_ACCOUNT_NEW).mkdirs()
     }
 
     companion object {

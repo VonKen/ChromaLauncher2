@@ -2,6 +2,7 @@ package com.chromalauncher.app.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.chromalauncher.app.ChromaApplication
 import com.chromalauncher.app.bridge.LauncherBridge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +20,7 @@ data class MainUiState(
     val installedMods: List<String> = emptyList()
 )
 
-class MainViewModel : AndroidViewModel(Application()) {
+class MainViewModel : AndroidViewModel(ChromaApplication.instance) {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
@@ -30,11 +31,15 @@ class MainViewModel : AndroidViewModel(Application()) {
     }
 
     fun loadAccount() {
-        val account = LauncherBridge.getSelectedAccountName(getApplication())
-        _uiState.update {
-            it.copy(
-                username = account.ifEmpty { "Not logged in" }
-            )
+        try {
+            val account = LauncherBridge.getSelectedAccountName(getApplication())
+            _uiState.update {
+                it.copy(
+                    username = account.ifEmpty { "Not logged in" }
+                )
+            }
+        } catch (e: Exception) {
+            _uiState.update { it.copy(username = "Error loading account") }
         }
     }
 

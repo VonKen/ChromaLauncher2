@@ -2,6 +2,7 @@ package com.chromalauncher.app.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import com.chromalauncher.app.ChromaApplication
 import com.chromalauncher.app.bridge.LauncherBridge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,7 @@ data class AccountsScreenUiState(
     val selectedUsername: String = ""
 )
 
-class AccountViewModel : AndroidViewModel(Application()) {
+class AccountViewModel : AndroidViewModel(ChromaApplication.instance) {
 
     private val _uiState = MutableStateFlow(AccountsScreenUiState())
     val uiState: StateFlow<AccountsScreenUiState> = _uiState.asStateFlow()
@@ -28,14 +29,18 @@ class AccountViewModel : AndroidViewModel(Application()) {
     }
 
     fun loadAccounts() {
-        val names = LauncherBridge.getAccountNames()
-        val accounts = names.map { AccountUiState(username = it) }
-        val selected = LauncherBridge.getSelectedAccountName(getApplication())
-        _uiState.update {
-            it.copy(
-                accounts = accounts,
-                selectedUsername = selected
-            )
+        try {
+            val names = LauncherBridge.getAccountNames()
+            val accounts = names.map { AccountUiState(username = it) }
+            val selected = LauncherBridge.getSelectedAccountName(getApplication())
+            _uiState.update {
+                it.copy(
+                    accounts = accounts,
+                    selectedUsername = selected
+                )
+            }
+        } catch (e: Exception) {
+            // Ignore errors loading accounts
         }
     }
 
