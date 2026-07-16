@@ -26,6 +26,16 @@ class MainViewModel : AndroidViewModel(Application()) {
 
     init {
         loadVersions()
+        loadAccount()
+    }
+
+    fun loadAccount() {
+        val account = LauncherBridge.getSelectedAccountName(getApplication())
+        _uiState.update {
+            it.copy(
+                username = account.ifEmpty { "Not logged in" }
+            )
+        }
     }
 
     private fun loadVersions() {
@@ -52,10 +62,13 @@ class MainViewModel : AndroidViewModel(Application()) {
     }
 
     fun launchGame() {
+        val version = _uiState.value.selectedVersion
+        if (version.isEmpty()) return
+
         _uiState.update { it.copy(isLaunching = true) }
 
         try {
-            val success = LauncherBridge.launchGame(_uiState.value.selectedVersion)
+            val success = LauncherBridge.launchGame(getApplication(), version)
             if (!success) {
                 _uiState.update { it.copy(isLaunching = false) }
             }
@@ -72,9 +85,5 @@ class MainViewModel : AndroidViewModel(Application()) {
                 downloadStatus = status
             )
         }
-    }
-
-    fun updateUsername(username: String) {
-        _uiState.update { it.copy(username = username) }
     }
 }
