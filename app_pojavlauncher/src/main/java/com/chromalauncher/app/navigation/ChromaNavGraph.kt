@@ -1,12 +1,15 @@
 package com.chromalauncher.app
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.chromalauncher.app.bridge.LauncherBridge
 import com.chromalauncher.app.ui.screens.AccountsScreen
 import com.chromalauncher.app.ui.screens.DownloadScreen
 import com.chromalauncher.app.ui.screens.MainScreen
@@ -22,13 +25,18 @@ fun ChromaNavHost() {
     val mainViewModel: MainViewModel = viewModel()
     val accountViewModel: AccountViewModel = viewModel()
     val downloadViewModel: DownloadViewModel = viewModel()
+    val context = LocalContext.current
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
             MainScreen(
                 viewModel = mainViewModel,
                 onPlayClick = {
-                    mainViewModel.loadVersions()
+                    val uiState = mainViewModel.uiState.value
+                    val success = LauncherBridge.launchGame(context, uiState.selectedVersion)
+                    if (!success) {
+                        Toast.makeText(context, "Failed to launch game", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 onSettingsClick = {
                     navController.navigate("settings")

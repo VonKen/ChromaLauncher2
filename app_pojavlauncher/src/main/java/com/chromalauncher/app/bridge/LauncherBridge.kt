@@ -2,7 +2,9 @@ package com.chromalauncher.app.bridge
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import net.kdt.pojavlaunch.GameActivity
 import net.kdt.pojavlaunch.JMinecraftVersionList
 import net.kdt.pojavlaunch.PojavProfile
 import net.kdt.pojavlaunch.Tools
@@ -58,6 +60,20 @@ object LauncherBridge {
                 onError(throwable)
             }
         })
+    }
+
+    fun launchGame(context: Context, version: String): Boolean {
+        return try {
+            Log.i(TAG, "Launching game version: $version")
+            val intent = Intent(context, GameActivity::class.java)
+            intent.putExtra(GameActivity.INTENT_MINECRAFT_VERSION, version)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+            true
+        } catch (e: Throwable) {
+            Log.e(TAG, "Failed to launch game", e)
+            false
+        }
     }
 
     fun getAccountNames(): List<String> {
