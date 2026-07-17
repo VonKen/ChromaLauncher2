@@ -6,7 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.ui.platform.ComposeView
+import androidx.activity.compose.setContent
 import com.chromalauncher.app.ui.ChromaApp
 import git.artdeell.mojo.R
 import net.kdt.pojavlaunch.MissingStorageActivity
@@ -44,15 +44,11 @@ class ChromaActivity : AppCompatActivity() {
             ExtraCore.setValue(ExtraConstants.RELEASE_TABLE, versions)
         }
 
-        setContentView(
-            ComposeView(this).apply {
-                setContent {
-                    ChromaApp(
-                        onLaunchGame = { launchGame() }
-                    )
-                }
-            }
-        )
+        setContent {
+            ChromaApp(
+                onLaunchGame = { launchGame() }
+            )
+        }
     }
 
     private fun launchGame() {
