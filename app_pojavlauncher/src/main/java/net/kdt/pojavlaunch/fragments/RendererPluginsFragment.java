@@ -59,30 +59,33 @@ public class RendererPluginsFragment extends Fragment {
         Context context = getContext();
         if (context == null) return;
 
-        RendererCompatUtil.RenderersList renderers = RendererCompatUtil.getCompatibleRenderers(context);
-        List<RendererPlugin> plugins = RendererPlugin.discoverPlugins(context);
-
         List<RendererEntry> entries = new ArrayList<>();
 
-        // Add built-in renderers
-        for (int i = 0; i < renderers.rendererIds.size(); i++) {
-            String id = renderers.rendererIds.get(i);
-            String name = renderers.rendererDisplayNames[i];
-            // Skip plugin renderers here, they'll be added below
-            RendererPlugin plugin = RendererPlugin.findPlugin(id);
-            if (plugin == null) {
-                entries.add(new RendererEntry(id, name, true, false));
-            }
-        }
+        try {
+            // Read ALL built-in renderers from arrays (not filtered by compatibility)
+            String[] rendererIds = context.getResources().getStringArray(R.array.renderer_values);
+            String[] rendererNames = context.getResources().getStringArray(R.array.renderer);
 
-        // Add plugin renderers
-        for (RendererPlugin plugin : plugins) {
-            entries.add(new RendererEntry(
-                    plugin.getRendererId(),
-                    plugin.getDisplayName(),
-                    plugin.isInstalled(),
-                    true
-            ));
+            // Get the compatible set so we can show status
+            RendererCompatUtil.RenderersList compatible = RendererCompatUtil.getCompatibleRenderers(context);
+
+            for (int i = 0; i < rendererIds.length; i++) {
+                boolean isCompatible = compatible.rendererIds.contains(rendererIds[i]);
+                entries.add(new RendererEntry(rendererIds[i], rendererNames[i], isCompatible, false));
+            }
+
+            // Discover plugin renderers
+            List<RendererPlugin> plugins = RendererPlugin.discoverPlugins(context);
+            for (RendererPlugin plugin : plugins) {
+                entries.add(new RendererEntry(
+                        plugin.getRendererId(),
+                        plugin.getDisplayName(),
+                        plugin.isInstalled(),
+                        true
+                ));
+            }
+        } catch (Exception e) {
+            entries.add(new RendererEntry("error", "Failed to load renderers: " + e.getMessage(), false, false));
         }
 
         mRecyclerView.setAdapter(new RendererAdapter(entries));
@@ -135,9 +138,12 @@ public class RendererPluginsFragment extends Fragment {
             RendererEntry entry = mEntries.get(position);
             holder.mNameText.setText(entry.name);
             holder.mIdText.setText(entry.id);
-            String tag = entry.isPlugin
-                    ? (entry.isInstalled ? "Plugin - Installed" : "Plugin - Not installed")
-                    : "Built-in";
+            String tag;
+            if (entry.isPlugin) {
+                tag = entry.isInstalled ? "Plugin" : "Plugin (not installed)";
+            } else {
+                tag = entry.isInstalled ? "Built-in" : "Not compatible";
+            }
             holder.mTagText.setText(tag);
         }
 
