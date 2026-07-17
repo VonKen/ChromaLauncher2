@@ -131,6 +131,7 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             resValue 'string', 'storageProviderAuthorities', 'com.chromalauncher.app.scoped.gamefolder'
+            resValue 'string', 'shareProviderAuthority', 'com.chromalauncher.app.scoped.controlfolder'
             resValue 'string', 'application_package', 'com.chromalauncher.app'
         }
     }
