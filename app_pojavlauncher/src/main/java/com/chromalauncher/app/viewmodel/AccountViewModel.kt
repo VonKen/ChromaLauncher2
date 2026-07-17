@@ -2,7 +2,6 @@ package com.chromalauncher.app.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.chromalauncher.app.ChromaApplication
 import com.chromalauncher.app.bridge.LauncherBridge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,7 +18,7 @@ data class AccountsScreenUiState(
     val selectedUsername: String = ""
 )
 
-class AccountViewModel : AndroidViewModel(ChromaApplication.instance) {
+class AccountViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(AccountsScreenUiState())
     val uiState: StateFlow<AccountsScreenUiState> = _uiState.asStateFlow()

@@ -2,7 +2,6 @@ package com.chromalauncher.app.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.chromalauncher.app.ChromaApplication
 import com.chromalauncher.app.bridge.LauncherBridge
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +19,7 @@ data class MainUiState(
     val installedMods: List<String> = emptyList()
 )
 
-class MainViewModel : AndroidViewModel(ChromaApplication.instance) {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
