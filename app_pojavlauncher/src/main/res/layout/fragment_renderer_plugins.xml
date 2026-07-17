@@ -29,6 +29,14 @@
         android:layout_weight="1" />
 
     <com.kdt.mcgui.MineButton
+        android:id="@+id/mobileglues_settings_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:text="MobileGlues Settings"
+        android:visibility="gone" />
+
+    <com.kdt.mcgui.MineButton
         android:id="@+id/install_renderer_apk_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

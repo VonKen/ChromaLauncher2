@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_app"
+    android:paddingHorizontal="@dimen/fragment_padding_medium"
+    android:paddingTop="@dimen/fragment_padding_medium">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/fragment_padding_medium">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="MobileGlues Settings"
+            android:textSize="@dimen/_16ssp"
+            android:textStyle="bold"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Configure MobileGlues 1.3.4 renderer settings. Config is stored at /sdcard/MG/"
+            android:textSize="@dimen/_11ssp"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_shader_compatibility"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Shader Compatibility Mode"
+            android:textSize="@dimen/_12ssp"
+            android:paddingVertical="@dimen/padding_small" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enables compatibility mode for shader packs. May fix rendering issues with some shaders."
+            android:textSize="@dimen/_10ssp"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_compute_multidraw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Compute Mode for MultiDraw"
+            android:textSize="@dimen/_12ssp"
+            android:paddingVertical="@dimen/padding_small" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Uses compute shaders for MultiDraw emulation. Improves performance on some devices."
+            android:textSize="@dimen/_10ssp"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_ignore_errors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ignore Shader/Program Errors"
+            android:textSize="@dimen/_12ssp"
+            android:paddingVertical="@dimen/padding_small" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ignore shader compilation errors. Useful for debugging shader issues."
+            android:textSize="@dimen/_10ssp"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_crash_report"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enable Crash Report"
+            android:textSize="@dimen/_12ssp"
+            android:paddingVertical="@dimen/padding_small" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send crash reports to help improve MobileGlues."
+            android:textSize="@dimen/_10ssp"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/sw_fsr_upscale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="FSR1 Upscaling"
+            android:textSize="@dimen/_12ssp"
+            android:paddingVertical="@dimen/padding_small" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="AMD FidelityFX Super Resolution 1.0 upscaling. Improves performance with slight quality loss."
+            android:textSize="@dimen/_10ssp"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <TextView
+            android:id="@+id/tv_config_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_11ssp"
+            android:paddingTop="@dimen/padding_medium" />
+
+        <com.kdt.mcgui.MineButton
+            android:id="@+id/btn_save_config"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_medium"
+            android:text="Save Config" />
+
+        <com.kdt.mcgui.MineButton
+            android:id="@+id/btn_reset_config"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/padding_small"
+            android:text="Reset to Defaults" />
+
+    </LinearLayout>
+</ScrollView>

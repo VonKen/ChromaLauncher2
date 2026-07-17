@@ -257,6 +257,12 @@ public class JREUtils {
                 useGles = true;
                 glesVersion = 3;
                 break;
+            case "mobileglues":
+                renderLibrary = "libmobileglues.so";
+                useGles = true;
+                bypassNamespace = true;
+                glesVersion = 3;
+                break;
             case "opengles2":
             case "opengles2_5":
             case "opengles3":

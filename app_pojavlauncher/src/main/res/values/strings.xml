@@ -67,6 +67,7 @@
     <string name="mcl_setting_renderer_vulkan_zink">Zink (Vulkan) - all versions, mid</string>
     <string name="mcl_setting_renderer_freedreno_kgsl">Freedreno - all versions, fast, Adreno-only</string>
     <string name="mcl_setting_renderer_ltw">LTW (OpenGL ES 3) - 1.17+ only, fast</string>
+    <string name="mcl_setting_renderer_mobileglues">MobileGlues 1.3.4 - GL on GLES, shader support</string>
     <string name="mcl_setting_veroption_release">Release</string>
     <string name="mcl_setting_veroption_snapshot">Snapshot</string>
     <string name="mcl_setting_veroption_oldalpha">Old-alpha</string>
@@ -535,6 +536,7 @@
     <string name="renderer_plugin_install_apk">Install Renderer APK</string>
     <string name="renderer_plugin_no_plugins">No renderer plugins installed</string>
     <string name="renderer_plugin_scan_hint">Renderer plugins are APK packages with prefix \"git.mojo.renderer.*\" that provide additional rendering backends.</string>
+    <string name="mobileglues_settings">MobileGlues Settings</string>
 
     <!-- Theme -->
     <string name="preference_theme_title">Theme</string>

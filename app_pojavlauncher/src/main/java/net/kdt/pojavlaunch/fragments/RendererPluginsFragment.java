@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import git.artdeell.mojo.R;
+import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.plugins.RendererPlugin;
 import net.kdt.pojavlaunch.utils.RendererCompatUtil;
 
@@ -52,6 +53,10 @@ public class RendererPluginsFragment extends Fragment {
             mInstallApkLauncher.launch("application/vnd.android.package-archive");
         });
 
+        view.findViewById(R.id.mobileglues_settings_button).setOnClickListener(v -> {
+            Tools.swapFragment(requireActivity(), MobileGluesConfigFragment.class, MobileGluesConfigFragment.TAG, null);
+        });
+
         loadRenderers();
     }
 
@@ -60,6 +65,7 @@ public class RendererPluginsFragment extends Fragment {
         if (context == null) return;
 
         List<RendererEntry> entries = new ArrayList<>();
+        boolean hasMobileGlues = false;
 
         try {
             // Read ALL built-in renderers from arrays (not filtered by compatibility)
@@ -72,6 +78,7 @@ public class RendererPluginsFragment extends Fragment {
             for (int i = 0; i < rendererIds.length; i++) {
                 boolean isCompatible = compatible.rendererIds.contains(rendererIds[i]);
                 entries.add(new RendererEntry(rendererIds[i], rendererNames[i], isCompatible, false));
+                if ("mobileglues".equals(rendererIds[i])) hasMobileGlues = true;
             }
 
             // Discover plugin renderers
@@ -86,6 +93,12 @@ public class RendererPluginsFragment extends Fragment {
             }
         } catch (Exception e) {
             entries.add(new RendererEntry("error", "Failed to load renderers: " + e.getMessage(), false, false));
+        }
+
+        // Show MobileGlues settings button if mobileglues is in the renderer list
+        View mgSettingsButton = getView() != null ? getView().findViewById(R.id.mobileglues_settings_button) : null;
+        if (mgSettingsButton != null) {
+            mgSettingsButton.setVisibility(hasMobileGlues ? View.VISIBLE : View.GONE);
         }
 
         mRecyclerView.setAdapter(new RendererAdapter(entries));
