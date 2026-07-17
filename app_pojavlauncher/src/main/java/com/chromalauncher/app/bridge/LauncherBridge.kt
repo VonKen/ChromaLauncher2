@@ -1,9 +1,14 @@
 package com.chromalauncher.app.bridge
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
+import net.kdt.pojavlaunch.JMinecraftVersionList
 import net.kdt.pojavlaunch.PojavProfile
 import net.kdt.pojavlaunch.Tools
+import net.kdt.pojavlaunch.tasks.AsyncMinecraftDownloader
+import net.kdt.pojavlaunch.tasks.AsyncVersionList
+import net.kdt.pojavlaunch.tasks.MinecraftDownloader
 import net.kdt.pojavlaunch.value.MinecraftAccount
 import java.io.File
 
@@ -14,41 +19,46 @@ object LauncherBridge {
 
     fun getInstalledVersions(): List<String> {
         return try {
-            val versionsDir = File(getGameDir(), "versions")
+            val versionsDir = File(Tools.DIR_HOME_VERSION)
             if (versionsDir.exists() && versionsDir.isDirectory) {
                 versionsDir.listFiles()
-                    ?.filter { it.isDirectory }
+                    ?.filter { it.isDirectory && File(it, "${it.name}.json").exists() }
                     ?.map { it.name }
                     ?.sorted()
                     ?: emptyList()
             } else {
-                listOf("1.21.1", "1.20.4", "1.20.2")
+                emptyList()
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get versions", e)
-            listOf("1.21.1", "1.20.4", "1.20.2")
+            emptyList()
         }
     }
 
-    fun launchGame(context: Context, version: String): Boolean {
-        return try {
-            Log.i(TAG, "Launching game version: $version")
-            @Suppress("UNCHANGED_ARGUMENT_VALUE")
-            Tools.launchMinecraft(
-                null,
-                null,
-                null,
-                version,
-                0
-            )
-            true
-        } catch (e: Throwable) {
-            Log.e(TAG, "Failed to launch game", e)
-            false
-        }
+    fun fetchVersionList(onResult: (JMinecraftVersionList?) -> Unit) {
+        val asyncVersionList = AsyncVersionList()
+        asyncVersionList.getVersionList({ versionList ->
+            onResult(versionList)
+        }, false)
     }
 
-    // --- Account management ---
+    fun downloadVersion(
+        activity: Activity?,
+        version: JMinecraftVersionList.Version,
+        versionId: String,
+        onDone: () -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        val downloader = MinecraftDownloader()
+        downloader.start(activity, version, versionId, object : AsyncMinecraftDownloader.DoneListener {
+            override fun onDownloadDone() {
+                onDone()
+            }
+            override fun onDownloadFailed(throwable: Throwable) {
+                onError(throwable)
+            }
+        })
+    }
 
     fun getAccountNames(): List<String> {
         return try {
@@ -103,10 +113,6 @@ object LauncherBridge {
         return PojavProfile.getCurrentProfileContent(context, null)
     }
 
-    // --- Game launching ---
-
-    fun getVersionDir(): String = "${Tools.DIR_GAME_HOME}/versions"
-    fun getLibrariesDir(): String = "${Tools.DIR_GAME_HOME}/libraries"
     fun getModsDir(): String = "${Tools.DIR_GAME_HOME}/mods"
 
     fun getInstalledMods(): List<String> {
@@ -123,16 +129,6 @@ object LauncherBridge {
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get mods", e)
             emptyList()
-        }
-    }
-
-    fun deleteVersion(version: String): Boolean {
-        return try {
-            val versionDir = File(getVersionDir(), version)
-            versionDir.deleteRecursively()
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to delete version", e)
-            false
         }
     }
 }

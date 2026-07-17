@@ -13,6 +13,7 @@ import com.chromalauncher.app.ui.screens.MainScreen
 import com.chromalauncher.app.ui.screens.ModsScreen
 import com.chromalauncher.app.ui.screens.SettingsScreen
 import com.chromalauncher.app.viewmodel.AccountViewModel
+import com.chromalauncher.app.viewmodel.DownloadViewModel
 import com.chromalauncher.app.viewmodel.MainViewModel
 
 @Composable
@@ -20,13 +21,14 @@ fun ChromaNavHost() {
     val navController = rememberNavController()
     val mainViewModel: MainViewModel = viewModel()
     val accountViewModel: AccountViewModel = viewModel()
+    val downloadViewModel: DownloadViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
             MainScreen(
                 viewModel = mainViewModel,
                 onPlayClick = {
-                    mainViewModel.launchGame()
+                    mainViewModel.loadVersions()
                 },
                 onSettingsClick = {
                     navController.navigate("settings")
@@ -49,7 +51,11 @@ fun ChromaNavHost() {
         }
         composable("download") {
             DownloadScreen(
-                onBack = { navController.popBackStack() }
+                viewModel = downloadViewModel,
+                onBack = {
+                    mainViewModel.loadVersions()
+                    navController.popBackStack()
+                }
             )
         }
         composable("mods") {
@@ -66,7 +72,10 @@ fun ChromaNavHost() {
                 onCreateAccount = { accountViewModel.createOfflineAccount(it) },
                 onSelectAccount = { accountViewModel.selectAccount(it) },
                 onDeleteAccount = { accountViewModel.deleteAccount(it) },
-                onBack = { navController.popBackStack() }
+                onBack = {
+                    mainViewModel.loadAccount()
+                    navController.popBackStack()
+                }
             )
         }
     }

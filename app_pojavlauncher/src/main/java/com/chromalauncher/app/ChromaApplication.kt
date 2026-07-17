@@ -3,6 +3,7 @@ package com.chromalauncher.app
 import android.app.Application
 import android.os.Environment
 import android.util.Log
+import net.kdt.pojavlaunch.Architecture
 import net.kdt.pojavlaunch.Tools
 import net.kdt.pojavlaunch.lifecycle.ContextExecutor
 import java.io.File
@@ -58,6 +59,7 @@ class ChromaApplication : Application() {
         Tools.APP_NAME = "ChromaLauncher"
 
         File(Tools.DIR_ACCOUNT_NEW).mkdirs()
+        Tools.DEVICE_ARCHITECTURE = Architecture.getDeviceArchitecture()
     }
 
     companion object {

@@ -1,9 +1,7 @@
 package com.chromalauncher.app.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,18 +12,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Extension
-import androidx.compose.material.icons.filled.InstallMobile
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,8 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -63,7 +53,6 @@ fun MainScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -85,7 +74,42 @@ fun MainScreen(
         ChromaDivider()
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Version selector
+        if (uiState.noVersionWarning) {
+            ChromaCard {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "No versions installed",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Go to Download to install a version first.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        } else if (uiState.noAccountWarning) {
+            ChromaCard {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "No account selected",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Create an offline account first.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         ChromaCard {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -104,34 +128,18 @@ fun MainScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Status card
-        if (uiState.isDownloading) {
-            ChromaCard {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = uiState.downloadStatus,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LinearProgressIndicator(
-                        progress = { uiState.downloadProgress },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // Play button
         ChromaButton(
             text = if (uiState.isLaunching) "Launching..." else "Play",
-            onClick = onPlayClick,
-            enabled = !uiState.isLaunching && !uiState.isDownloading
+            onClick = {
+                if (viewModel.onPlayClick()) {
+                    onPlayClick()
+                }
+            },
+            enabled = !uiState.isLaunching
         )
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Quick actions
         Text(
             text = "Quick Actions",
             style = MaterialTheme.typography.titleMedium,
@@ -161,26 +169,6 @@ fun MainScreen(
                 onClick = onSettingsClick,
                 modifier = Modifier.weight(1f)
             )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Installed info
-        if (uiState.installedMods.isNotEmpty()) {
-            Text(
-                text = "Installed Mods (${uiState.installedMods.size})",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            uiState.installedMods.take(3).forEach { mod ->
-                Text(
-                    text = mod,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 2.dp)
-                )
-            }
         }
     }
 }

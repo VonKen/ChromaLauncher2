@@ -10,13 +10,11 @@ import kotlinx.coroutines.flow.update
 
 data class MainUiState(
     val username: String = "Not logged in",
-    val selectedVersion: String = "1.21.1",
+    val selectedVersion: String = "",
     val availableVersions: List<String> = emptyList(),
     val isLaunching: Boolean = false,
-    val isDownloading: Boolean = false,
-    val downloadProgress: Float = 0f,
-    val downloadStatus: String = "",
-    val installedMods: List<String> = emptyList()
+    val noAccountWarning: Boolean = false,
+    val noVersionWarning: Boolean = false
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -34,60 +32,50 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val account = LauncherBridge.getSelectedAccountName(getApplication())
             _uiState.update {
                 it.copy(
-                    username = account.ifEmpty { "Not logged in" }
+                    username = account.ifEmpty { "Not logged in" },
+                    noAccountWarning = account.isEmpty()
                 )
             }
         } catch (e: Exception) {
-            _uiState.update { it.copy(username = "Error loading account") }
+            _uiState.update { it.copy(username = "Error loading account", noAccountWarning = true) }
         }
     }
 
-    private fun loadVersions() {
+    fun loadVersions() {
         try {
             val versions = LauncherBridge.getInstalledVersions()
             _uiState.update {
                 it.copy(
                     availableVersions = versions,
-                    selectedVersion = versions.firstOrNull() ?: "1.21.1"
+                    selectedVersion = versions.firstOrNull() ?: "",
+                    noVersionWarning = versions.isEmpty()
                 )
             }
         } catch (e: Exception) {
             _uiState.update {
                 it.copy(
-                    availableVersions = listOf("1.21.1", "1.20.4", "1.20.2"),
-                    selectedVersion = "1.21.1"
+                    availableVersions = emptyList(),
+                    selectedVersion = "",
+                    noVersionWarning = true
                 )
             }
         }
     }
 
     fun selectVersion(version: String) {
-        _uiState.update { it.copy(selectedVersion = version) }
+        _uiState.update { it.copy(selectedVersion = version, noVersionWarning = false) }
     }
 
-    fun launchGame() {
-        val version = _uiState.value.selectedVersion
-        if (version.isEmpty()) return
-
-        _uiState.update { it.copy(isLaunching = true) }
-
-        try {
-            val success = LauncherBridge.launchGame(getApplication(), version)
-            if (!success) {
-                _uiState.update { it.copy(isLaunching = false) }
-            }
-        } catch (e: Exception) {
-            _uiState.update { it.copy(isLaunching = false) }
+    fun onPlayClick(): Boolean {
+        val state = _uiState.value
+        if (state.selectedVersion.isEmpty()) {
+            _uiState.update { it.copy(noVersionWarning = true) }
+            return false
         }
-    }
-
-    fun updateDownloadProgress(progress: Float, status: String) {
-        _uiState.update {
-            it.copy(
-                isDownloading = progress < 1f,
-                downloadProgress = progress,
-                downloadStatus = status
-            )
+        if (state.username == "Not logged in" || state.username.isEmpty()) {
+            _uiState.update { it.copy(noAccountWarning = true) }
+            return false
         }
+        return true
     }
 }
