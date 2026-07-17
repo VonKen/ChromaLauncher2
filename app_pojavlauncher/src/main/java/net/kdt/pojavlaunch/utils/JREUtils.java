@@ -268,9 +268,13 @@ public class JREUtils {
                 // Check if this is a renderer plugin
                 RendererPlugin plugin = RendererPlugin.findPlugin(renderer);
                 if (plugin != null && plugin.isInstalled()) {
-                    renderLibrary = plugin.getNativeLibraryName();
+                    // Use full absolute path and bypass namespace for plugin libraries
+                    renderLibrary = plugin.resolveAbsolutePath();
                     useGles = true;
+                    bypassNamespace = true;
                     glesVersion = 3;
+                    // Add plugin's lib directory so dlopen can resolve dependencies
+                    setRendererLibraryPath(Tools.NATIVE_LIB_DIR, plugin.getLibraryPath());
                 } else {
                     renderLibrary = "libgl4es_114.so";
                     useGles = true;

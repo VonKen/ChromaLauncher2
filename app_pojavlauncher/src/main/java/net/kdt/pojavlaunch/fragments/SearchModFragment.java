@@ -15,6 +15,9 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -113,7 +116,8 @@ public class SearchModFragment extends Fragment implements ModItemAdapter.Search
     public SearchModFragment(){
         super(R.layout.fragment_mod_search);
         mSearchFilters = new SearchFilters();
-        mSearchFilters.isModpack = true;
+        mSearchFilters.contentType = SearchFilters.TYPE_MODPACK;
+        mSearchFilters.applyContentType();
     }
 
     @Override
@@ -137,6 +141,37 @@ public class SearchModFragment extends Fragment implements ModItemAdapter.Search
         mFilterButton = view.findViewById(R.id.search_mod_filter);
 
         mDefaultTextColor = mStatusTextView.getTextColors();
+
+        // Content type chip group
+        ChipGroup chipGroup = view.findViewById(R.id.search_mod_chiptype);
+        Chip chipModpacks = view.findViewById(R.id.chip_modpacks);
+        Chip chipMods = view.findViewById(R.id.chip_mods);
+        Chip chipResourcePacks = view.findViewById(R.id.chip_resourcepacks);
+        Chip chipShaders = view.findViewById(R.id.chip_shaders);
+
+        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) return;
+            int checkedId = checkedIds.get(0);
+            if (checkedId == R.id.chip_modpacks) {
+                mSearchFilters.contentType = SearchFilters.TYPE_MODPACK;
+                mSearchEditText.setHint(R.string.hint_search_modpack);
+                mImportButton.setVisibility(View.VISIBLE);
+            } else if (checkedId == R.id.chip_mods) {
+                mSearchFilters.contentType = SearchFilters.TYPE_MOD;
+                mSearchEditText.setHint(R.string.hint_search_mods);
+                mImportButton.setVisibility(View.GONE);
+            } else if (checkedId == R.id.chip_resourcepacks) {
+                mSearchFilters.contentType = SearchFilters.TYPE_RESOURCE_PACK;
+                mSearchEditText.setHint(R.string.hint_search_resourcepacks);
+                mImportButton.setVisibility(View.GONE);
+            } else if (checkedId == R.id.chip_shaders) {
+                mSearchFilters.contentType = SearchFilters.TYPE_SHADER;
+                mSearchEditText.setHint(R.string.hint_search_shaders);
+                mImportButton.setVisibility(View.GONE);
+            }
+            mSearchFilters.applyContentType();
+            searchMods(mSearchEditText.getText().toString());
+        });
 
         mRecyclerview.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerview.setAdapter(mModItemAdapter);

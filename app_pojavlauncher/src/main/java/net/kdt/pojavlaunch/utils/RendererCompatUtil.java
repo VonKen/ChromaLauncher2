@@ -52,8 +52,6 @@ public class RendererCompatUtil {
             rendererIds.add(rendererId);
             rendererNames.add(defaultRendererNames[i]);
         }
-        sCompatibleRenderers = new RenderersList(rendererIds,
-                rendererNames.toArray(new String[0]));
 
         // Discover and add renderer plugins
         List<RendererPlugin> plugins = RendererPlugin.discoverPlugins(context);
@@ -61,23 +59,12 @@ public class RendererCompatUtil {
         for (RendererPlugin plugin : plugins) {
             if (plugin.isInstalled() && !rendererIds.contains(plugin.getRendererId())) {
                 rendererIds.add(plugin.getRendererId());
+                rendererNames.add(plugin.getDisplayName());
             }
         }
-        if (!plugins.isEmpty()) {
-            String[] updatedNames = new String[rendererIds.size()];
-            System.arraycopy(sCompatibleRenderers.rendererDisplayNames, 0, updatedNames, 0,
-                    sCompatibleRenderers.rendererDisplayNames.length);
-            for (int i = sCompatibleRenderers.rendererDisplayNames.length; i < rendererIds.size(); i++) {
-                // Find matching plugin for display name
-                for (RendererPlugin p : plugins) {
-                    if (p.getRendererId().equals(rendererIds.get(i))) {
-                        updatedNames[i] = p.getDisplayName();
-                        break;
-                    }
-                }
-            }
-            sCompatibleRenderers = new RenderersList(rendererIds, updatedNames);
-        }
+
+        sCompatibleRenderers = new RenderersList(rendererIds,
+                rendererNames.toArray(new String[0]));
 
         return sCompatibleRenderers;
     }
@@ -90,6 +77,7 @@ public class RendererCompatUtil {
     /** Releases the cache of compatible renderers. */
     public static void releaseRenderersCache() {
         sCompatibleRenderers = null;
+        RendererPlugin.releaseCache();
         System.gc();
     }
 

@@ -9,8 +9,10 @@ import net.kdt.pojavlaunch.instances.Instances;
 import net.kdt.pojavlaunch.instances.Instance;
 import net.kdt.pojavlaunch.modloaders.modpacks.imagecache.ModIconCache;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
+import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchFilters;
 import net.kdt.pojavlaunch.progresskeeper.DownloaderProgressWrapper;
 import net.kdt.pojavlaunch.utils.DownloadUtils;
+import net.kdt.pojavlaunch.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,60 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 
 public class ModpackInstaller {
+
+    /**
+     * Download a single mod/resource pack/shader directly into an existing instance's directory.
+     */
+    public static void downloadToInstance(ModDetail modDetail, int selectedVersion, int contentType) throws IOException {
+        Instance instance = Instances.loadSelectedInstance();
+        if (instance == null) throw new IOException("No instance selected");
+
+        String versionUrl = modDetail.versionUrls[selectedVersion];
+        String versionHash = modDetail.versionHashes[selectedVersion];
+        String fileName = (modDetail.title.toLowerCase(Locale.ROOT) + "-" + modDetail.versionNames[selectedVersion])
+                .trim().replaceAll("[\\\\/:*?\"<>| \\t\\n]", "_");
+
+        // Determine target directory based on content type
+        String subDir;
+        switch (contentType) {
+            case SearchFilters.TYPE_RESOURCE_PACK:
+                subDir = "resourcepacks";
+                break;
+            case SearchFilters.TYPE_SHADER:
+                subDir = "shaderpacks";
+                break;
+            default:
+                subDir = "mods";
+                break;
+        }
+
+        // Determine file extension
+        String extension = ".jar";
+        if (contentType == SearchFilters.TYPE_RESOURCE_PACK || contentType == SearchFilters.TYPE_SHADER) {
+            extension = ".zip";
+        }
+        if (!fileName.endsWith(extension)) {
+            fileName += extension;
+        }
+
+        File targetFile = new File(instance.getGameDirectory(), subDir + "/" + fileName);
+        FileUtils.ensureParentDirectory(targetFile);
+
+        byte[] downloadBuffer = new byte[8192];
+        try {
+            DownloadUtils.ensureSha1(targetFile, versionHash, (Callable<Void>) () -> {
+                DownloadUtils.downloadFileMonitored(versionUrl, targetFile, downloadBuffer,
+                        new DownloaderProgressWrapper(R.string.modpack_download_downloading_metadata,
+                                ProgressLayout.INSTALL_MODPACK
+                        )
+                );
+                return null;
+            });
+        } catch (IOException e) {
+            targetFile.delete();
+            throw e;
+        }
+    }
 
     public static ModLoader installModpack(String modpackName, String title, File modpackFile, String icon, InstallFunction installFunction) throws IOException {
         // Build a new minecraft instance, folder first

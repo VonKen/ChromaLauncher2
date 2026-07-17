@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -19,11 +20,14 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kdt.SimpleArrayAdapter;
+import com.kdt.mcgui.ProgressLayout;
 
 import net.kdt.pojavlaunch.PojavApplication;
 import git.artdeell.mojo.R;
 import net.kdt.pojavlaunch.Tools;
+import net.kdt.pojavlaunch.instances.Instances;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModpackApi;
+import net.kdt.pojavlaunch.modloaders.modpacks.api.ModpackInstaller;
 import net.kdt.pojavlaunch.modloaders.modpacks.imagecache.ImageReceiver;
 import net.kdt.pojavlaunch.modloaders.modpacks.imagecache.ModIconCache;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.Constants;
@@ -31,6 +35,7 @@ import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModItem;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchFilters;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchResult;
+import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper;
 import net.kdt.pojavlaunch.progresskeeper.TaskCountListener;
 
 import java.util.Arrays;
@@ -79,6 +84,10 @@ public class ModItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.mLastPage = false;
         mTaskInProgress = new SelfReferencingFuture(new SearchApiTask(mSearchFilters, null))
                 .startOnExecutor(PojavApplication.sExecutorService);
+    }
+
+    public SearchFilters getSearchFilters() {
+        return mSearchFilters;
     }
 
     @NonNull
@@ -176,10 +185,7 @@ public class ModItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     mExtendedSpinner = mExtendedLayout.findViewById(R.id.mod_extended_version_spinner);
                     mExtendedErrorTextView = mExtendedLayout.findViewById(R.id.mod_extended_error_textview);
 
-                    mExtendedButton.setOnClickListener(v1 -> mModpackApi.handleModpackInstallation(
-                            mExtendedButton.getContext().getApplicationContext(),
-                            mModDetail,
-                            mExtendedSpinner.getSelectedItemPosition()));
+                    mExtendedButton.setOnClickListener(v1 -> handleInstallClick(v1.getContext()));
                     mExtendedSpinner.setAdapter(mLoadingAdapter);
                 } else {
                     if(isExtended()) closeDetailedView();
@@ -333,6 +339,34 @@ public class ModItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         private void updateInstallButtonState() {
             if(mExtendedButton != null)
                 mExtendedButton.setEnabled(mInstallEnabled && !mTasksRunning);
+        }
+
+        private void handleInstallClick(Context context) {
+            if (mModDetail == null || mSearchFilters == null) return;
+
+            if (mSearchFilters.contentType == SearchFilters.TYPE_MODPACK) {
+                // Existing modpack installation flow
+                mModpackApi.handleModpackInstallation(
+                        context.getApplicationContext(),
+                        mModDetail,
+                        mExtendedSpinner.getSelectedItemPosition());
+            } else {
+                // Direct download for mods/resource packs/shaders
+                int selectedVersion = mExtendedSpinner.getSelectedItemPosition();
+                ProgressLayout.setProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.global_waiting);
+                PojavApplication.sExecutorService.execute(() -> {
+                    try {
+                        ModpackInstaller.downloadToInstance(mModDetail, selectedVersion, mSearchFilters.contentType);
+                        Tools.runOnUiThread(() -> Toast.makeText(context,
+                                R.string.download_to_instance, Toast.LENGTH_SHORT).show());
+                    } catch (Exception e) {
+                        Tools.runOnUiThread(() -> Tools.showErrorRemote(context,
+                                R.string.modpack_install_download_failed, e));
+                    } finally {
+                        ProgressLayout.clearProgress(ProgressLayout.INSTALL_MODPACK);
+                    }
+                });
+            }
         }
     }
 
