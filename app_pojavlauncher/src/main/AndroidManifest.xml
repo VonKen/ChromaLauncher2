@@ -3,9 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature android:glEsVersion="0x00020000" />
-    <uses-feature
-        android:name="android.hardware.type.pc"
-        android:required="false" />
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission
@@ -16,28 +13,17 @@
         android:maxSdkVersion="28" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
     <application
         android:name="com.chromalauncher.app.ChromaApplication"
         android:allowBackup="true"
-        android:allowNativeHeapPointerTagging="false"
-        android:appCategory="game"
-        android:hasFragileUserData="true"
         android:icon="@mipmap/ic_launcher"
-        android:isGame="true"
         android:label="@string/app_name"
-        android:process=":launcher"
-        android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:theme="@style/AppTheme">
-
-        <meta-data
-            android:name="android.max_aspect"
-            android:value="ratio_float" />
+        android:theme="@style/AppTheme"
+        android:supportsRtl="true">
 
         <activity
             android:name="com.chromalauncher.app.MainActivity"
@@ -55,13 +41,6 @@
             android:name="net.kdt.pojavlaunch.GameActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:launchMode="singleTop"
-            android:process=":game"
-            android:screenOrientation="sensorLandscape" />
-
-        <activity
-            android:name="net.kdt.pojavlaunch.JavaGUILauncherActivity"
-            android:process=":gui_installer"
-            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:screenOrientation="sensorLandscape" />
 
         <activity
@@ -73,26 +52,8 @@
             android:configChanges="keyboardHidden|orientation|screenSize|keyboard|navigation"
             android:theme="@style/Theme.AppCompat.DayNight.Dialog" />
 
-        <provider
-            android:name="net.kdt.pojavlaunch.scoped.FolderProvider"
-            android:authorities="@string/storageProviderAuthorities"
-            android:exported="true"
-            android:grantUriPermissions="true"
-            android:permission="android.permission.MANAGE_DOCUMENTS">
-            <intent-filter>
-                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
-            </intent-filter>
-        </provider>
+        <service android:name="net.kdt.pojavlaunch.services.GameService"
+            android:foregroundServiceType="specialUse" />
 
-        <service android:name="net.kdt.pojavlaunch.services.ProgressService"
-            android:foregroundServiceType="dataSync"/>
-        <service android:name="net.kdt.pojavlaunch.services.GameService" android:process=":game"
-            android:foregroundServiceType="specialUse">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="This application is intended to run a 3rd-party piece of software which cannot be managed using the activity's saved instance state. This service is used for background persistence of this piece of software."/>
-        </service>
     </application>
-    <queries>
-        <package android:name="net.kdt.pojavlaunch.ffmpeg"/>
-    </queries>
 </manifest>
