@@ -55,6 +55,8 @@ public class MainMenuFragment extends Fragment {
         Button mShareLogsButton = view.findViewById(R.id.share_logs_button);
         Button mOpenDirectoryButton = view.findViewById(R.id.open_files_button);
         Button mFileManagerButton = view.findViewById(R.id.file_manager_button);
+        Button mBrowseModsButton = view.findViewById(R.id.browse_mods_button);
+        Button mRendererPluginsButton = view.findViewById(R.id.renderer_plugins_button);
 
         ImageButton mEditProfileButton = view.findViewById(R.id.edit_profile_button);
         Button mPlayButton = view.findViewById(R.id.play_button);
@@ -73,6 +75,10 @@ public class MainMenuFragment extends Fragment {
         mOpenDirectoryButton.setOnClickListener((v)-> openGameDirectory(v.getContext()));
 
         mFileManagerButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), FileManagerFragment.class, FileManagerFragment.TAG, null));
+
+        mBrowseModsButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), SearchModFragment.class, SearchModFragment.TAG, null));
+
+        mRendererPluginsButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), RendererPluginsFragment.class, RendererPluginsFragment.TAG, null));
 
 
         mNewsButton.setOnLongClickListener((v)->{

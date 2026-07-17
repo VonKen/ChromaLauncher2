@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background_app"
+    android:paddingHorizontal="@dimen/fragment_padding_medium"
+    android:paddingTop="@dimen/fragment_padding_medium">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/renderer_plugins_title"
+        android:textSize="@dimen/_16ssp"
+        android:textStyle="bold"
+        android:paddingBottom="@dimen/padding_medium" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/renderer_plugin_scan_hint"
+        android:textSize="@dimen/_11ssp"
+        android:paddingBottom="@dimen/padding_medium" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/renderer_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/install_renderer_apk_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:text="@string/renderer_plugin_install_apk" />
+
+</LinearLayout>

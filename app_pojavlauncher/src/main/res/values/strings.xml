@@ -527,6 +527,14 @@
     <string name="fm_cannot_delete_root">Cannot delete root directory</string>
     <string name="fm_file_info">Size: %1$s\nPath: %2$s</string>
     <string name="main_file_manager">File Manager</string>
+    <string name="main_browse_mods">Browse Mods</string>
+    <string name="main_renderer_plugins">Renderer Plugins</string>
+    <string name="renderer_plugins_title">Renderer Plugins</string>
+    <string name="renderer_plugin_installed">Installed</string>
+    <string name="renderer_plugin_builtin">Built-in</string>
+    <string name="renderer_plugin_install_apk">Install Renderer APK</string>
+    <string name="renderer_plugin_no_plugins">No renderer plugins installed</string>
+    <string name="renderer_plugin_scan_hint">Renderer plugins are APK packages with prefix \"git.mojo.renderer.*\" that provide additional rendering backends.</string>
 
     <!-- Theme -->
     <string name="preference_theme_title">Theme</string>
