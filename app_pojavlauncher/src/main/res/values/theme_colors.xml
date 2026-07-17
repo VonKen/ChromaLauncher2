@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light theme colors -->
+    <color name="background_app_light">#F5F5F5</color>
+    <color name="divider_light">#E0E0E0</color>
+    <color name="background_overlay_light">#E0E0E0</color>
+    <color name="background_status_bar_light">#E0E0E0</color>
+    <color name="background_bottom_bar_light">#EEEEEE</color>
+    <color name="icon_outline_color_light">#333333</color>
+
+    <color name="primary_text_light">#212121</color>
+    <color name="secondary_text_light">#757575</color>
+
+    <!-- Dark theme colors (current, kept as-is) -->
+    <color name="background_app_dark">#181818</color>
+    <color name="divider_dark">#464646</color>
+    <color name="background_overlay_dark">#464646</color>
+    <color name="background_status_bar_dark">#242424</color>
+    <color name="background_bottom_bar_dark">#232323</color>
+    <color name="icon_outline_color_dark">#FFFFFF</color>
+
+    <color name="primary_text_dark">#FFFFFF</color>
+    <color name="secondary_text_dark">#B2B2B2</color>
+</resources>

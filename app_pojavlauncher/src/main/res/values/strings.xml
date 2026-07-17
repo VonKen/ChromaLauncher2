@@ -505,4 +505,21 @@
     <string name="migration_notice">Looks like you have already used this application in the past. You can import old launcher installation data from miscellaneous settings.</string>
     <string name="preference_alsoft_opensl_title">Forcefully use OpenSL for audio</string>
     <string name="preference_alsoft_opensl_summary">Forcefully enables OpenSL backend in ALSoft instead of Oboe. Can fix audio capture issues on some devices. Disable if you see audio playback/capture issues</string>
+
+    <!-- File Manager -->
+    <string name="fm_title">File Manager</string>
+    <string name="fm_up">Go up</string>
+    <string name="fm_new_folder">New folder</string>
+    <string name="fm_delete">Delete</string>
+    <string name="fm_delete_title">Delete</string>
+    <string name="fm_delete_message">Delete \"%s\"?</string>
+    <string name="fm_delete_failed">Failed to delete</string>
+    <string name="fm_create_folder_failed">Failed to create folder</string>
+    <string name="fm_cannot_delete_root">Cannot delete root directory</string>
+    <string name="fm_file_info">Size: %1$s\nPath: %2$s</string>
+    <string name="main_file_manager">File Manager</string>
+
+    <!-- Theme -->
+    <string name="preference_theme_title">Theme</string>
+    <string name="preference_theme_description">Switch between light and dark themes</string>
 </resources>

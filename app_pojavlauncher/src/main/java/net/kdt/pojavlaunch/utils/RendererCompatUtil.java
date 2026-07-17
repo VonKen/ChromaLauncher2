@@ -9,6 +9,7 @@ import android.os.Build;
 
 import net.kdt.pojavlaunch.Architecture;
 import net.kdt.pojavlaunch.Tools;
+import net.kdt.pojavlaunch.plugins.RendererPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -53,6 +54,30 @@ public class RendererCompatUtil {
         }
         sCompatibleRenderers = new RenderersList(rendererIds,
                 rendererNames.toArray(new String[0]));
+
+        // Discover and add renderer plugins
+        List<RendererPlugin> plugins = RendererPlugin.discoverPlugins(context);
+        RendererPlugin.setCachedPlugins(plugins);
+        for (RendererPlugin plugin : plugins) {
+            if (plugin.isInstalled() && !rendererIds.contains(plugin.getRendererId())) {
+                rendererIds.add(plugin.getRendererId());
+            }
+        }
+        if (!plugins.isEmpty()) {
+            String[] updatedNames = new String[rendererIds.size()];
+            System.arraycopy(sCompatibleRenderers.rendererDisplayNames, 0, updatedNames, 0,
+                    sCompatibleRenderers.rendererDisplayNames.length);
+            for (int i = sCompatibleRenderers.rendererDisplayNames.length; i < rendererIds.size(); i++) {
+                // Find matching plugin for display name
+                for (RendererPlugin p : plugins) {
+                    if (p.getRendererId().equals(rendererIds.get(i))) {
+                        updatedNames[i] = p.getDisplayName();
+                        break;
+                    }
+                }
+            }
+            sCompatibleRenderers = new RenderersList(rendererIds, updatedNames);
+        }
 
         return sCompatibleRenderers;
     }

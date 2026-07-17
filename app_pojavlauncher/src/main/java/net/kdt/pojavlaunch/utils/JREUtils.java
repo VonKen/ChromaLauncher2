@@ -10,6 +10,8 @@ import android.util.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import net.kdt.pojavlaunch.plugins.RendererPlugin;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -258,10 +260,22 @@ public class JREUtils {
             case "opengles2":
             case "opengles2_5":
             case "opengles3":
-            default:
                 renderLibrary = "libgl4es_114.so";
                 useGles = true;
                 glesVersion = Integer.parseInt((String) ExtraCore.getValue(ExtraConstants.OPEN_GL_VERSION));
+                break;
+            default:
+                // Check if this is a renderer plugin
+                RendererPlugin plugin = RendererPlugin.findPlugin(renderer);
+                if (plugin != null && plugin.isInstalled()) {
+                    renderLibrary = plugin.getNativeLibraryName();
+                    useGles = true;
+                    glesVersion = 3;
+                } else {
+                    renderLibrary = "libgl4es_114.so";
+                    useGles = true;
+                    glesVersion = Integer.parseInt((String) ExtraCore.getValue(ExtraConstants.OPEN_GL_VERSION));
+                }
                 break;
         }
 

@@ -11,6 +11,7 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 
 import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
@@ -76,6 +77,7 @@ public class PojavApplication extends Application {
 				// Implicitly initializes early constants and storage constants.
 				// Required to run the main activity properly.
 				LauncherPreferences.loadPreferences(this);
+				applyThemeMode();
 			} else {
 				// In other cases, only initialize enough for the basicmost basics to work
 				// and not explode.
@@ -114,5 +116,19 @@ public class PojavApplication extends Application {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         LocaleUtils.setLocale(this);
+    }
+
+    private void applyThemeMode() {
+        switch (LauncherPreferences.PREF_THEME_MODE) {
+            case "light":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case "dark":
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+        }
     }
 }
