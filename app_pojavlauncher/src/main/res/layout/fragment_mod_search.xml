@@ -72,47 +72,42 @@
             app:layout_constraintTop_toBottomOf="@+id/search_mod_edittext"
             tools:layout_editor_absoluteX="13dp" />
 
-        <com.google.android.material.chip.ChipGroup
+        <RadioGroup
             android:id="@+id/search_mod_chiptype"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:singleSelection="true"
-            app:selectionRequired="true"
+            android:orientation="horizontal"
             android:layout_marginTop="@dimen/padding_small"
             app:layout_constraintTop_toBottomOf="@+id/search_mod_progressbar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <com.google.android.material.chip.Chip
+            <RadioButton
                 android:id="@+id/chip_modpacks"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/modpack"
                 android:checked="true" />
 
-            <com.google.android.material.chip.Chip
+            <RadioButton
                 android:id="@+id/chip_mods"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/mods_label" />
 
-            <com.google.android.material.chip.Chip
+            <RadioButton
                 android:id="@+id/chip_resourcepacks"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/resourcepacks_label" />
 
-            <com.google.android.material.chip.Chip
+            <RadioButton
                 android:id="@+id/chip_shaders"
-                style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/shaders_label" />
 
-        </com.google.android.material.chip.ChipGroup>
+        </RadioGroup>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

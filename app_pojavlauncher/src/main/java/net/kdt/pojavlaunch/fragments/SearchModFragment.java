@@ -15,8 +15,8 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -142,16 +142,10 @@ public class SearchModFragment extends Fragment implements ModItemAdapter.Search
 
         mDefaultTextColor = mStatusTextView.getTextColors();
 
-        // Content type chip group
-        ChipGroup chipGroup = view.findViewById(R.id.search_mod_chiptype);
-        Chip chipModpacks = view.findViewById(R.id.chip_modpacks);
-        Chip chipMods = view.findViewById(R.id.chip_mods);
-        Chip chipResourcePacks = view.findViewById(R.id.chip_resourcepacks);
-        Chip chipShaders = view.findViewById(R.id.chip_shaders);
+        // Content type radio group
+        RadioGroup radioGroup = view.findViewById(R.id.search_mod_chiptype);
 
-        chipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) return;
-            int checkedId = checkedIds.get(0);
+        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.chip_modpacks) {
                 mSearchFilters.contentType = SearchFilters.TYPE_MODPACK;
                 mSearchEditText.setHint(R.string.hint_search_modpack);
