@@ -47,7 +47,7 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
     private Instance mInstance;
     private String mSelectedControlLayout;
     private Button mSaveButton, mDeleteButton, mControlSelectButton, mVersionSelectButton;
-    private Button mCustomDirSelectButton;
+    private Button mCustomDirSelectButton, mManageModsButton;
     private Spinner mDefaultRuntime, mDefaultRenderer;
     private EditText mDefaultName, mDefaultJvmArgument;
     private TextView mDefaultVersion, mDefaultControl, mCustomDirPath;
@@ -138,6 +138,15 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
             mCustomDirLauncher.launch(null);
         });
 
+        mManageModsButton.setOnClickListener(v -> {
+            if (mInstance != null) {
+                String gameDir = mInstance.getGameDirectory().getAbsolutePath();
+                Bundle bundle = new Bundle(1);
+                bundle.putString("gameDir", gameDir);
+                Tools.swapFragment(requireActivity(), InstanceModsFragment.class, InstanceModsFragment.TAG, bundle);
+            }
+        });
+
         Instance selectedInstance = Instances.loadSelectedInstance();
         Context context = view.getContext();
         if(selectedInstance == null) {
@@ -216,6 +225,7 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
         mSharedDataCheckbox = view.findViewById(R.id.vprof_editor_data_checkbox_container);
         mCustomDirPath = view.findViewById(R.id.vprof_editor_custom_dir_spinner);
         mCustomDirSelectButton = view.findViewById(R.id.vprof_editor_custom_dir_button);
+        mManageModsButton = view.findViewById(R.id.vprof_editor_manage_mods_button);
     }
 
     private void save(){

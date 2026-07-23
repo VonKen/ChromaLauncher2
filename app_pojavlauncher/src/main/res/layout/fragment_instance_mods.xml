@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_app"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/fragment_padding_medium">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/instance_mods_title"
+        android:textColor="@color/primary_text"
+        android:textSize="@dimen/_16ssp"
+        android:textStyle="bold"
+        android:paddingVertical="@dimen/padding_medium" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/instance_mods_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/padding_medium" />
+
+        <TextView
+            android:id="@+id/instance_mods_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/instance_mods_empty"
+            android:textColor="@color/primary_text"
+            android:textSize="@dimen/_13ssp"
+            android:gravity="center"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/instance_mods_install_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_small"
+        android:layout_marginBottom="@dimen/padding_medium"
+        android:text="@string/instance_mods_install" />
+
+</LinearLayout>

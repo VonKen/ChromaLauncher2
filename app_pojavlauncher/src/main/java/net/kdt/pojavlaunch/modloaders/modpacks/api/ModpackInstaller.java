@@ -4,6 +4,8 @@ import com.kdt.mcgui.ProgressLayout;
 
 import git.artdeell.mojo.R;
 import net.kdt.pojavlaunch.Tools;
+import net.kdt.pojavlaunch.extra.ExtraConstants;
+import net.kdt.pojavlaunch.extra.ExtraCore;
 import net.kdt.pojavlaunch.instances.InstanceInstaller;
 import net.kdt.pojavlaunch.instances.Instances;
 import net.kdt.pojavlaunch.instances.Instance;
@@ -23,10 +25,20 @@ public class ModpackInstaller {
 
     /**
      * Download a single mod/resource pack/shader directly into an existing instance's directory.
+     * If ExtraCore has a target INSTANCE_MODS_DIR, it is used; otherwise falls back to the selected instance.
      */
     public static void downloadToInstance(ModDetail modDetail, int selectedVersion, int contentType) throws IOException {
-        Instance instance = Instances.loadSelectedInstance();
-        if (instance == null) throw new IOException("No instance selected");
+        // Check for per-instance target directory first
+        String targetGameDir = (String) ExtraCore.consumeValue(ExtraConstants.INSTANCE_MODS_DIR);
+
+        File gameDir;
+        if (targetGameDir != null) {
+            gameDir = new File(targetGameDir);
+        } else {
+            Instance instance = Instances.loadSelectedInstance();
+            if (instance == null) throw new IOException("No instance selected");
+            gameDir = instance.getGameDirectory();
+        }
 
         String versionUrl = modDetail.versionUrls[selectedVersion];
         String versionHash = modDetail.versionHashes[selectedVersion];
@@ -56,7 +68,7 @@ public class ModpackInstaller {
             fileName += extension;
         }
 
-        File targetFile = new File(instance.getGameDirectory(), subDir + "/" + fileName);
+        File targetFile = new File(gameDir, subDir + "/" + fileName);
         FileUtils.ensureParentDirectory(targetFile);
 
         byte[] downloadBuffer = new byte[8192];

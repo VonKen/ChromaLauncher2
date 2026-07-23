@@ -548,4 +548,17 @@
     <!-- Theme -->
     <string name="preference_theme_title">Theme</string>
     <string name="preference_theme_description">Switch between light and dark themes</string>
+
+    <!-- Instance Mods Manager -->
+    <string name="instance_manage_mods">Manage Mods</string>
+    <string name="instance_mods_title">Installed Mods</string>
+    <string name="instance_mods_empty">No mods installed.\nTap \"Install Mods\" to add some.</string>
+    <string name="instance_mods_enabled">Enabled</string>
+    <string name="instance_mods_disabled">Disabled</string>
+    <string name="instance_mods_enable">Enable</string>
+    <string name="instance_mods_disable">Disable</string>
+    <string name="instance_mods_install">Install Mods</string>
+    <string name="instance_mods_delete_title">Delete Mod</string>
+    <string name="instance_mods_delete_message">Delete \"%1$s\"?</string>
+    <string name="instance_mods_no_folder">No mods folder found for this instance</string>
 </resources>

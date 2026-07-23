@@ -189,6 +189,14 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/vprof_editor_custom_dir_spinner" />
 
+            <com.kdt.mcgui.MineButton
+                android:id="@+id/vprof_editor_manage_mods_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="@string/instance_manage_mods"
+                app:layout_constraintTop_toBottomOf="@+id/vprof_editor_custom_dir_spinner" />
+
 
             <TextView
                 android:id="@+id/textView6"
@@ -210,7 +218,7 @@
                 android:paddingHorizontal="@dimen/padding_heavy"
                 android:textSize="@dimen/_13ssp"
 
-                app:layout_constraintTop_toBottomOf="@+id/vprof_editor_data_checkbox_container" />
+                app:layout_constraintTop_toBottomOf="@+id/vprof_editor_manage_mods_button" />
 
             <TextView
                 android:id="@+id/textView2"
