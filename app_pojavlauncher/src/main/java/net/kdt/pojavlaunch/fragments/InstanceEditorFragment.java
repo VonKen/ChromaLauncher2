@@ -58,7 +58,7 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
 
     private List<String> mRenderNames;
 
-    private final ActivityResultLauncher<Void> mCustomDirLauncher =
+    private final ActivityResultLauncher<android.net.Uri> mCustomDirLauncher =
             registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), uri -> {
                 if (uri == null) return;
                 try {
