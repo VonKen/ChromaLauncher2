@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
         android:name="net.kdt.pojavlaunch.PojavApplication"
@@ -63,6 +64,7 @@
         <activity
             android:name="net.kdt.pojavlaunch.LauncherActivity"
             android:label="@string/app_short_name"
+            android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation|uiMode"
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name="net.kdt.pojavlaunch.ImportControlActivity"

@@ -7,6 +7,7 @@ public class DisplayInstance {
     public String name;
     public String versionId;
     public String icon;
+    public String customGameDirectory;
 
     protected void sanitize() {
         sanitizeIcon();

@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -46,15 +47,31 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
     private Instance mInstance;
     private String mSelectedControlLayout;
     private Button mSaveButton, mDeleteButton, mControlSelectButton, mVersionSelectButton;
+    private Button mCustomDirSelectButton;
     private Spinner mDefaultRuntime, mDefaultRenderer;
     private EditText mDefaultName, mDefaultJvmArgument;
-    private TextView mDefaultVersion, mDefaultControl;
+    private TextView mDefaultVersion, mDefaultControl, mCustomDirPath;
     private ImageView mInstanceIcon;
     private CheckBox mSharedDataCheckbox;
     private int mRecommendedIconSize;
     private final ActivityResultLauncher<?> mCropperLauncher = CropperUtils.registerCropper(this, this);
 
     private List<String> mRenderNames;
+
+    private final ActivityResultLauncher<android.net.Uri[]> mCustomDirLauncher =
+            registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(), uri -> {
+                if (uri == null) return;
+                try {
+                    // Get the actual file path from the document URI
+                    String path = uri.getPath();
+                    if (path != null) {
+                        mCustomDirPath.setText(path);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to resolve directory path", e);
+                    Toast.makeText(getContext(), "Failed to select directory", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     public InstanceEditorFragment(){
         super(R.layout.fragment_instance_editor);
@@ -117,6 +134,10 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
             mSharedDataCheckbox.setText(text);
         });
 
+        mCustomDirSelectButton.setOnClickListener(v -> {
+            mCustomDirLauncher.launch(null);
+        });
+
         Instance selectedInstance = Instances.loadSelectedInstance();
         Context context = view.getContext();
         if(selectedInstance == null) {
@@ -175,6 +196,7 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
         mDefaultName.setText(nullToEmpty(instance.name));
         mDefaultControl.setText(mSelectedControlLayout == null ? nullToEmpty(instance.controlLayout) : mSelectedControlLayout);
         mSharedDataCheckbox.setChecked(instance.sharedData);
+        mCustomDirPath.setText(nullToEmpty(instance.customGameDirectory));
     }
 
     private void bindViews(@NonNull View view){
@@ -192,6 +214,8 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
         mVersionSelectButton = view.findViewById(R.id.vprof_editor_version_button);
         mInstanceIcon = view.findViewById(R.id.vprof_editor_instance_icon);
         mSharedDataCheckbox = view.findViewById(R.id.vprof_editor_data_checkbox_container);
+        mCustomDirPath = view.findViewById(R.id.vprof_editor_custom_dir_spinner);
+        mCustomDirSelectButton = view.findViewById(R.id.vprof_editor_custom_dir_button);
     }
 
     private void save(){
@@ -210,6 +234,9 @@ public class InstanceEditorFragment extends Fragment implements CropperUtils.Cro
 
         if(mDefaultRenderer.getSelectedItemPosition() == mRenderNames.size()) mInstance.renderer = null;
         else mInstance.renderer = mRenderNames.get(mDefaultRenderer.getSelectedItemPosition());
+
+        String customDir = mCustomDirPath.getText().toString();
+        mInstance.customGameDirectory = customDir.isEmpty() ? null : customDir;
 
         try {
             mInstance.write();

@@ -302,6 +302,13 @@
 
     <string name="preference_force_big_core_title">Force the renderer to run on the big core</string>
     <string name="preference_force_big_core_desc">Forces the game\'s render thread to run on the core with the highest maximum frequency.</string>
+
+    <string name="preference_keep_game_background_title">Keep game running in background</string>
+    <string name="preference_keep_game_background_description">When enabled, the game stays alive when you switch apps. Uses more battery.</string>
+
+    <string name="instance_custom_directory">Custom game directory</string>
+    <string name="instance_custom_directory_hint">Leave empty for default (instance folder)</string>
+    <string name="instance_custom_directory_select">Select folder</string>
     <string name="version_select_hint">Select a version</string>
     <string name="forge_dl_progress">Downloading installer for %s</string>
     <string name="forge_dl_searching">Searching for Forge version number</string>

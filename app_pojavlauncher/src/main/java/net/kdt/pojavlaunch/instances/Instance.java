@@ -112,6 +112,12 @@ public class Instance extends DisplayInstance {
 
     public File getGameDirectory() {
         if(sharedData) return Instances.SHARED_DATA_DIRECTORY;
+        if(customGameDirectory != null && !customGameDirectory.isEmpty()) {
+            File customDir = new File(customGameDirectory);
+            if(customDir.exists() || customDir.mkdirs()) {
+                return customDir;
+            }
+        }
         return mInstanceRoot;
     }
 }

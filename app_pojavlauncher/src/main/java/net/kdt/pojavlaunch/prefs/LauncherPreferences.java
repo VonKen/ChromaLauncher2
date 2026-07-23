@@ -78,6 +78,7 @@ public class LauncherPreferences {
     public static boolean PREF_ALSOFT_FORCE_OPENSL = false;
 
     public static String PREF_THEME_MODE = "system";
+    public static boolean PREF_KEEP_GAME_BACKGROUND = true;
 
 
     public static void loadPreferences(Context ctx) {
@@ -127,6 +128,7 @@ public class LauncherPreferences {
         PREF_MIGRATION_NOTICE = DEFAULT_PREF.getBoolean("migrationNotice", true);
         PREF_ALSOFT_FORCE_OPENSL = DEFAULT_PREF.getBoolean("alsoftForceOpenSL", false);
         PREF_THEME_MODE = DEFAULT_PREF.getString("theme_mode", "system");
+        PREF_KEEP_GAME_BACKGROUND = DEFAULT_PREF.getBoolean("keepGameBackground", true);
 
         String argLwjglLibname = "-Dorg.lwjgl.opengl.libname=";
         for (String arg : JREUtils.parseJavaArguments(PREF_CUSTOM_JAVA_ARGS)) {

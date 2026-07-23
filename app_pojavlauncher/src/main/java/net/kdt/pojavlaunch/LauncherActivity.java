@@ -59,7 +59,7 @@ public class LauncherActivity extends BaseActivity {
     private ProgressLayout mProgressLayout;
     private ProgressServiceKeeper mProgressServiceKeeper;
     private NotificationManager mNotificationManager;
-    private static ActivityResultLauncher<String> mRequestPermissionLauncher;
+    private ActivityResultLauncher<String> mRequestPermissionLauncher;
 
     /* Allows to switch from one button "type" to another */
     private final FragmentManager.FragmentLifecycleCallbacks mFragmentCallbackListener = new FragmentManager.FragmentLifecycleCallbacks() {
