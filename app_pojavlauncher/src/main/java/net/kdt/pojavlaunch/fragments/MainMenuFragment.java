@@ -74,11 +74,14 @@ public class MainMenuFragment extends Fragment {
 
         mOpenDirectoryButton.setOnClickListener((v)-> openGameDirectory(v.getContext()));
 
-        mFileManagerButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), FileManagerFragment.class, FileManagerFragment.TAG, null));
+        if (mFileManagerButton != null)
+            mFileManagerButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), FileManagerFragment.class, FileManagerFragment.TAG, null));
 
-        mBrowseModsButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), SearchModFragment.class, SearchModFragment.TAG, null));
+        if (mBrowseModsButton != null)
+            mBrowseModsButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), SearchModFragment.class, SearchModFragment.TAG, null));
 
-        mRendererPluginsButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), RendererPluginsFragment.class, RendererPluginsFragment.TAG, null));
+        if (mRendererPluginsButton != null)
+            mRendererPluginsButton.setOnClickListener(v -> Tools.swapFragment(requireActivity(), RendererPluginsFragment.class, RendererPluginsFragment.TAG, null));
 
 
         mNewsButton.setOnLongClickListener((v)->{
