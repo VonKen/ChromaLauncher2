@@ -19,7 +19,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -59,6 +58,7 @@ import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 import net.kdt.pojavlaunch.prefs.QuickSettingSideDialog;
 import net.kdt.pojavlaunch.services.GameService;
+import net.kdt.pojavlaunch.services.JvmForegroundService;
 import net.kdt.pojavlaunch.tasks.AsyncAssetManager;
 import net.kdt.pojavlaunch.utils.JREUtils;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
@@ -103,7 +103,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     private GameService.LocalBinder mServiceBinder;
 
     private QuickSettingSideDialog mQuickSettingSideDialog;
-    private PowerManager.WakeLock mWakeLock;
 
     public static boolean mForceFullPanning = false;
     public static int mImeHeight = 0;
@@ -331,22 +330,15 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     protected void onStart() {
         super.onStart();
-        if (LauncherPreferences.PREF_KEEP_GAME_BACKGROUND && mWakeLock != null && mWakeLock.isHeld()) {
-            mWakeLock.release();
-            mWakeLock = null;
-        }
+        JvmForegroundService.stop(this);
         //CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 1);
     }
 
     @Override
     protected void onStop() {
         //CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 0);
-        if (LauncherPreferences.PREF_KEEP_GAME_BACKGROUND && mWakeLock == null) {
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            if (pm != null) {
-                mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ChromaLauncher:GameKeepAlive");
-                mWakeLock.acquire();
-            }
+        if (LauncherPreferences.PREF_KEEP_GAME_BACKGROUND) {
+            JvmForegroundService.start(this);
         }
         super.onStop();
     }
@@ -355,6 +347,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     protected void onDestroy() {
         super.onDestroy();
         ContextExecutor.clearActivity();
+        JvmForegroundService.stop(this);
     }
 
     @Override

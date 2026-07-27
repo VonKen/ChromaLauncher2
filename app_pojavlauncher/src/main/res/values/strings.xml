@@ -306,6 +306,9 @@
     <string name="preference_keep_game_background_title">Keep game running in background</string>
     <string name="preference_keep_game_background_description">When enabled, the game stays alive when you switch apps. Uses more battery.</string>
 
+    <string name="notif_jvm_keepalive_title">ChromaLauncher</string>
+    <string name="notif_jvm_keepalive_text">Running in the background. Tap to return to the game.</string>
+
     <string name="instance_custom_directory">Custom game directory</string>
     <string name="instance_custom_directory_hint">Leave empty for default (instance folder)</string>
     <string name="instance_custom_directory_select">Select folder</string>
