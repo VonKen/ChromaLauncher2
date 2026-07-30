@@ -261,8 +261,10 @@ public class JREUtils {
             case "mobileglues":
                 renderLibrary = "libmobileglues.so";
                 useGles = true;
-                bypassNamespace = true;
+                bypassNamespace = false;
                 glesVersion = 3;
+                // MobileGlues runs on top of system GLES 3.x, load in default namespace
+                if(preloadVk) preloadVulkan(); // Preload Vulkan for newer MG versions
                 break;
             case "opengles2":
             case "opengles2_5":
