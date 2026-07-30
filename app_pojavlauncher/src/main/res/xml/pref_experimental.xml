@@ -27,5 +27,12 @@
             android:title="@string/preference_alsoft_opensl_title"
             android:summary="@string/preference_alsoft_opensl_summary"
             />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="alsoftForceOpenSLCapture"
+            android:icon="@drawable/ic_microphone"
+            android:title="@string/preference_alsoft_opensl_capture_title"
+            android:summary="@string/preference_alsoft_opensl_capture_summary"
+            />
     </PreferenceCategory>
 </PreferenceScreen>
