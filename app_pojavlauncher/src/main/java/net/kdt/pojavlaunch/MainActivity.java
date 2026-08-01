@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.media.AudioManager;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -103,6 +104,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     private GameService.LocalBinder mServiceBinder;
 
     private QuickSettingSideDialog mQuickSettingSideDialog;
+    private AudioManager mAudioManager;
 
     public static boolean mForceFullPanning = false;
     public static int mImeHeight = 0;
@@ -125,6 +127,12 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         ContextCompat.startForegroundService(this, gameServiceIntent);
         initLayout(R.layout.activity_basemain);
         GLFW.addGrabListener(launcherGLView);
+
+        // Enable Android communication mode for AEC/NS (needed for voice chat)
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if(mAudioManager != null && LauncherPreferences.PREF_COMMUNICATION_MODE) {
+            mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        }
 
         mGyroControl = new GyroControl(this);
 
@@ -347,6 +355,9 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     protected void onDestroy() {
         super.onDestroy();
         ContextExecutor.clearActivity();
+        if(mAudioManager != null && LauncherPreferences.PREF_COMMUNICATION_MODE) {
+            mAudioManager.setMode(AudioManager.MODE_NORMAL);
+        }
         JvmForegroundService.stop(this);
     }
 

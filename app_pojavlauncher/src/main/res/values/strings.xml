@@ -527,6 +527,8 @@
     <string name="preference_alsoft_opensl_summary">Forcefully enables OpenSL backend in ALSoft instead of Oboe. Can fix audio capture issues on some devices. Disable if you see audio playback/capture issues</string>
     <string name="preference_alsoft_opensl_capture_title">Use OpenSL for mic capture only</string>
     <string name="preference_alsoft_opensl_capture_summary">Sets the ALSoft capture backend to OpenSL while playback stays on the default (Oboe). May fix microphone echo/feedback in voice chat mods.</string>
+    <string name="preference_communication_mode_title">Enable communication audio mode</string>
+    <string name="preference_communication_mode_summary">Enables Android\'s communication mode (AEC/NS) for the game process. Needed for noise cancellation and echo suppression in voice chat mods.</string>
 
     <!-- File Manager -->
     <string name="fm_title">File Manager</string>

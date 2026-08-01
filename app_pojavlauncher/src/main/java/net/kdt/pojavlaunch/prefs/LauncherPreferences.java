@@ -77,6 +77,7 @@ public class LauncherPreferences {
     public static boolean PREF_MIGRATION_NOTICE = true;
     public static boolean PREF_ALSOFT_FORCE_OPENSL = false;
     public static boolean PREF_ALSOFT_FORCE_OPENSL_CAPTURE = false;
+    public static boolean PREF_COMMUNICATION_MODE = false;
 
     public static String PREF_THEME_MODE = "system";
     public static boolean PREF_KEEP_GAME_BACKGROUND = true;
@@ -129,6 +130,7 @@ public class LauncherPreferences {
         PREF_MIGRATION_NOTICE = DEFAULT_PREF.getBoolean("migrationNotice", true);
         PREF_ALSOFT_FORCE_OPENSL = DEFAULT_PREF.getBoolean("alsoftForceOpenSL", false);
         PREF_ALSOFT_FORCE_OPENSL_CAPTURE = DEFAULT_PREF.getBoolean("alsoftForceOpenSLCapture", false);
+        PREF_COMMUNICATION_MODE = DEFAULT_PREF.getBoolean("communicationMode", false);
         PREF_THEME_MODE = DEFAULT_PREF.getString("theme_mode", "system");
         PREF_KEEP_GAME_BACKGROUND = DEFAULT_PREF.getBoolean("keepGameBackground", true);
 
