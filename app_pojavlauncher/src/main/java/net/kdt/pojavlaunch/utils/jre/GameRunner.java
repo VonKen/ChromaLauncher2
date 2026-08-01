@@ -12,6 +12,7 @@ import net.kdt.pojavlaunch.JVersionList;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;
 import net.kdt.pojavlaunch.instances.Instance;
+import net.kdt.pojavlaunch.utils.SVCNativePatcher;
 import net.kdt.pojavlaunch.lifecycle.LifecycleAwareAlertDialog;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 import net.kdt.pojavlaunch.multirt.Runtime;
@@ -166,6 +167,10 @@ public class GameRunner {
         }
         File gamedir = instance.getGameDirectory();
         JVersionList.Version versionInfo = Tools.getVersionInfo(versionId);
+
+        // Replace the glibc RNNoise native inside Simple Voice Chat mod jars with an
+        // Android-compatible build, so noise suppression can actually load on device.
+        SVCNativePatcher.patch(gamedir);
 
         // Switch renderer to GL4ES when running a compat context version on LTW
         if(isCompatContext(versionInfo) && !hasAngelica(gamedir) && rendererName.equals("opengles3_ltw")) {
