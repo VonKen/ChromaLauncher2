@@ -213,6 +213,8 @@
     <string name="preference_force_vsync_description">Limit thermal throttling by limiting peak performance.</string>
     <string name="preference_thermal_throttling_title">Smart thermal throttling</string>
     <string name="preference_thermal_throttling_description">Monitors device temperature while playing and automatically lowers CPU priority and pins the game to efficiency cores before the system force-closes the app on overheating.</string>
+    <string name="preference_thermal_warnings_title">Thermal warnings</string>
+    <string name="preference_thermal_warnings_description">Shows on-screen toasts when the device temperature tiers change. Throttling still works when this is off.</string>
     <string name="thermal_warm_toast">Device is warming up, lowering CPU priority</string>
     <string name="thermal_hot_toast">Device is hot, throttling the game to keep it cool</string>
     <string name="thermal_severe_toast">Device is overheating! Pinning to efficiency cores and throttling further</string>

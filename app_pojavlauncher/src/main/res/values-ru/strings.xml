@@ -446,4 +446,6 @@
     <string name="preference_alsoft_driver_opensles">OpenSL ES</string>
     <string name="preference_alsoft_driver_aaudio">AAudio</string>
     <string name="preference_alsoft_driver_aaudio_first">AAudio, при недоступности OpenSL ES</string>
+    <string name="preference_thermal_warnings_title">Термо-предупреждения</string>
+    <string name="preference_thermal_warnings_description">Показывает всплывающие уведомления при смене температурных уровней устройства. Троттлинг продолжает работать при выключенном переключателе.</string>
 </resources>

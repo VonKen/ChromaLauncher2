@@ -270,6 +270,7 @@ public class ThermalManager {
     }
 
     private void notifyTier(ThermalTier tier) {
+        if(!LauncherPreferences.PREF_THERMAL_WARNINGS) return;
         Activity activity = mActivityRef.get();
         if(activity == null) return;
         final String message;
