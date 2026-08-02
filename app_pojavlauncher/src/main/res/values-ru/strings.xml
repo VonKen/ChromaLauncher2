@@ -440,4 +440,10 @@
     <string name="migration_progress_space">На вашем устройстве недостаточно места для переноса данных. Освободите как минимум $%1l МБ или больше чтобы продолжить</string>
     <string name="preference_alsoft_opensl_title">Принудительно использовать OpenSL для аудио</string>
     <string name="preference_alsoft_opensl_summary">Включает принудительное использование OpenSL вместо Oboe для ALSoft. Может исправить проблемы с записью звука на некоторых устройствах. Выключите если вы наблюдаете проблемы с записью или воспроизведением звука.</string>
+    <string name="preference_alsoft_driver_title">Аудио-драйвер OpenAL</string>
+    <string name="preference_alsoft_driver_summary">Переопределяет бэкенд OpenAL Soft, используемый игрой для воспроизведения и записи. Попробуйте AAudio, если игра падает со звуком (например, SIGSEGV в libopenal.so на OpenSL).</string>
+    <string name="preference_alsoft_driver_auto">Автоматически</string>
+    <string name="preference_alsoft_driver_opensles">OpenSL ES</string>
+    <string name="preference_alsoft_driver_aaudio">AAudio</string>
+    <string name="preference_alsoft_driver_aaudio_first">AAudio, при недоступности OpenSL ES</string>
 </resources>

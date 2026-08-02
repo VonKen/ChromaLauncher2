@@ -536,6 +536,12 @@
     <string name="preference_alsoft_opensl_capture_summary">Sets the ALSoft capture backend to OpenSL while playback stays on the default (Oboe). May fix microphone echo/feedback in voice chat mods.</string>
     <string name="preference_communication_mode_title">Enable communication audio mode</string>
     <string name="preference_communication_mode_summary">Enables Android\'s communication mode (AEC/NS) for the game process. Needed for noise cancellation and echo suppression in voice chat mods.</string>
+    <string name="preference_alsoft_driver_title">OpenAL audio driver</string>
+    <string name="preference_alsoft_driver_summary">Overrides the OpenAL Soft backend used by the game for playback and capture. Try AAudio first if the game crashes with audio (e.g. OpenSL segfaults in libopenal.so).</string>
+    <string name="preference_alsoft_driver_auto">Automatic</string>
+    <string name="preference_alsoft_driver_opensles">OpenSL ES</string>
+    <string name="preference_alsoft_driver_aaudio">AAudio</string>
+    <string name="preference_alsoft_driver_aaudio_first">AAudio first, fall back to OpenSL ES</string>
 
     <!-- File Manager -->
     <string name="fm_title">File Manager</string>

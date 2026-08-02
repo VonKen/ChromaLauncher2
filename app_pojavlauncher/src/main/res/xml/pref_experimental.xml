@@ -34,6 +34,15 @@
             android:title="@string/preference_alsoft_opensl_capture_title"
             android:summary="@string/preference_alsoft_opensl_capture_summary"
             />
+        <ListPreference
+            android:key="alsoftDriver"
+            android:icon="@drawable/ic_microphone"
+            android:title="@string/preference_alsoft_driver_title"
+            android:summary="@string/preference_alsoft_driver_summary"
+            android:entries="@array/alsoft_driver_entries"
+            android:entryValues="@array/alsoft_driver_values"
+            android:defaultValue=""
+            />
         <SwitchPreference
             android:defaultValue="false"
             android:key="communicationMode"

@@ -146,6 +146,18 @@ public class JREUtils {
         if(LauncherPreferences.PREF_ALSOFT_FORCE_OPENSL) envMap.put("ALSOFT_DRIVERS", "opensl");
         if(LauncherPreferences.PREF_ALSOFT_FORCE_OPENSL_CAPTURE) envMap.put("ALSOFT_CAPTURE_DRIVERS", "opensl");
 
+        String alsftDriver = LauncherPreferences.PREF_ALSOFT_DRIVER;
+        if("opensles".equals(alsftDriver)) {
+            envMap.put("ALSOFT_DRIVERS", "opensles");
+            envMap.put("ALSOFT_CAPTURE_DRIVERS", "opensles");
+        } else if("aaudio".equals(alsftDriver)) {
+            envMap.put("ALSOFT_DRIVERS", "aaudio");
+            envMap.put("ALSOFT_CAPTURE_DRIVERS", "aaudio");
+        } else if("aaudio_first".equals(alsftDriver)) {
+            envMap.put("ALSOFT_DRIVERS", "aaudio,opensles");
+            envMap.put("ALSOFT_CAPTURE_DRIVERS", "aaudio,opensles");
+        }
+
         if(GLInfoUtils.getGlInfo().isAdreno() && !PREF_ZINK_PREFER_SYSTEM_DRIVER) {
             setUseTurnip(true);
         }
