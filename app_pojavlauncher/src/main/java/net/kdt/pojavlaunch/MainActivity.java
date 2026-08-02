@@ -66,6 +66,7 @@ import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;
 import net.kdt.pojavlaunch.utils.RendererCompatUtil;
 import net.kdt.pojavlaunch.utils.ThermalManager;
+import net.kdt.pojavlaunch.utils.ThermalNative;
 import net.kdt.pojavlaunch.utils.jre.GameRunner;
 
 import java.io.File;
@@ -420,6 +421,10 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         Logger.appendToLog("--------- Starting game with Launcher Debug!");
         Tools.printLauncherInfo(versionId, instance.getLaunchArgs(), renderer, this);
         JREUtils.redirectAndPrintJRELog();
+        if(LauncherPreferences.PREF_SPREAD_CORES) {
+            ThermalNative.ensureLoaded();
+            if(ThermalNative.isLoaded()) ThermalNative.spreadAcrossAllCores();
+        }
         startThermalManager();
         GameRunner.launchGame(this, account, instance, versionId, classpath, renderer);
         //Note that we actually stall in the above function, even if the game crashes. But let's be safe.

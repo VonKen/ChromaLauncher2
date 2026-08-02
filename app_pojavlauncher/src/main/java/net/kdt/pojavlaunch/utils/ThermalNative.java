@@ -17,6 +17,9 @@ public final class ThermalNative {
     /** Pin every thread of this process to the efficiency cores. */
     public static native void setLittleCoreAffinity(boolean enable);
 
+    /** Remove any affinity restriction so the scheduler can place work on every online core. */
+    public static native void spreadAcrossAllCores();
+
     public static void ensureLoaded() {
         if(loaded) return;
         try {

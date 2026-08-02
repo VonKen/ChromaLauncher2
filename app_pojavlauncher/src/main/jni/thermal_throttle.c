@@ -113,6 +113,50 @@ JNIEXPORT void JNICALL Java_net_kdt_pojavlaunch_utils_ThermalNative_setProcessNi
     }
 }
 
+static unsigned int parse_online_list(cpu_set_t* out) {
+    CPU_ZERO(out);
+    char buffer[512];
+    int online_fd = open("/sys/devices/system/cpu/online", O_RDONLY);
+    if(online_fd == -1) return 0;
+    ssize_t read_count = read(online_fd, buffer, sizeof(buffer) - 1);
+    close(online_fd);
+    if(read_count <= 0) return 0;
+    buffer[read_count] = 0;
+    char* saveptr = NULL;
+    char* token = strtok_r(buffer, ",", &saveptr);
+    while(token != NULL) {
+        char* dash = strchr(token, '-');
+        if(dash != NULL) {
+            *dash = 0;
+            unsigned int start = (unsigned int) strtoul(token, NULL, 10);
+            unsigned int end = (unsigned int) strtoul(dash + 1, NULL, 10);
+            if(end >= CPU_SETSIZE) end = CPU_SETSIZE - 1;
+            for(unsigned int i = start; i <= end; i++) {
+                CPU_SET_S(i, CPU_SETSIZE, out);
+            }
+        } else {
+            unsigned int core = (unsigned int) strtoul(token, NULL, 10);
+            if(core < CPU_SETSIZE) CPU_SET_S(core, CPU_SETSIZE, out);
+        }
+        token = strtok_r(NULL, ",", &saveptr);
+    }
+    return CPU_COUNT_S(CPU_SETSIZE, out);
+}
+
+/** Remove any affinity restriction so the scheduler may place work on every online core. */
+JNIEXPORT void JNICALL Java_net_kdt_pojavlaunch_utils_ThermalNative_spreadAcrossAllCores(JNIEnv* env, jclass clazz) {
+    cpu_set_t all_cores_set;
+    if(parse_online_list(&all_cores_set) == 0) {
+        if(!little_cores_init) init_little_cores();
+        CPU_ZERO(&all_cores_set);
+        for(unsigned int i = 0; i < total_core_count && i < CPU_SETSIZE; i++) {
+            CPU_SET_S(i, CPU_SETSIZE, &all_cores_set);
+        }
+    }
+    apply_affinity_to_all_threads(&all_cores_set);
+    printf("%s: spread load across all %u online cores\n", THROTTLE_TAG, (unsigned int) CPU_COUNT_S(CPU_SETSIZE, &all_cores_set));
+}
+
 JNIEXPORT void JNICALL Java_net_kdt_pojavlaunch_utils_ThermalNative_setLittleCoreAffinity(JNIEnv* env, jclass clazz, jboolean enable) {
     if(!little_cores_init) init_little_cores();
     if(!little_cores_init) return;

@@ -245,6 +245,8 @@
     <string name="preference_microphone_access_description">Запрашивает у системы доступ к микрофону устройства в игре</string>
     <string name="preference_force_big_core_title">Запускать визуализатор на мощном ядре</string>
     <string name="preference_force_big_core_desc">Принудительно запускать поток графического движка на ядре ЦП с наибольшей тактовой частотой.</string>
+    <string name="preference_spread_cores_title">Распределить игру по всем ядрам</string>
+    <string name="preference_spread_cores_desc">Снимает ограничение на ядра при запуске, позволяя потокам игры использовать все активные ядра ЦП. Конфликтует с опцией «мощное ядро».</string>
     <string name="version_select_hint">Выберите версию</string>
     <string name="forge_dl_progress">Загрузка установщика %s</string>
     <string name="forge_dl_searching">Поиск номера версии Forge</string>

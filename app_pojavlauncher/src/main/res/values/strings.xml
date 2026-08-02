@@ -312,6 +312,9 @@
     <string name="preference_force_big_core_title">Force the renderer to run on the big core</string>
     <string name="preference_force_big_core_desc">Forces the game\'s render thread to run on the core with the highest maximum frequency.</string>
 
+    <string name="preference_spread_cores_title">Spread the game across all cores</string>
+    <string name="preference_spread_cores_desc">Removes any core restriction at launch so the game\'s threads can use every online CPU core. Conflicts with the big-core option.</string>
+
     <string name="preference_keep_game_background_title">Keep game running in background</string>
     <string name="preference_keep_game_background_description">When enabled, the game stays alive when you switch apps. Uses more battery.</string>
 
