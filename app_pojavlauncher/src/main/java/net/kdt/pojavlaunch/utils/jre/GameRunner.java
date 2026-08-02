@@ -247,6 +247,27 @@ public class GameRunner {
             String dirPath = versionSpecificNativesDir.getAbsolutePath();
             javaArgList.add("-Djava.library.path="+dirPath+":"+Tools.NATIVE_LIB_DIR);
             javaArgList.add("-Djna.boot.library.path="+dirPath);
+            // Make sure the bundled OpenAL (libopenal.so) is used instead of a
+            // possibly broken one downloaded/extracted into the natives dir.
+            // NativesExtractor's blacklist already prevents future downloads from
+            // overriding the bundled library, but older installs may still hold a
+            // stale copy here, which java.library.path would prefer.
+            File bundledOpenal = new File(Tools.NATIVE_LIB_DIR, "libopenal.so");
+            if(bundledOpenal.exists()) {
+                File targetOpenal = new File(versionSpecificNativesDir, "libopenal.so");
+                try {
+                    if(targetOpenal.exists() && !targetOpenal.delete()) {
+                        Log.w("GameRunner", "Failed to remove stale libopenal.so in "+dirPath);
+                    }
+                    FileUtils.ensureParentDirectory(targetOpenal);
+                    try (java.io.InputStream in = new java.io.FileInputStream(bundledOpenal);
+                         java.io.OutputStream out = new java.io.FileOutputStream(targetOpenal)) {
+                        org.apache.commons.io.IOUtils.copy(in, out);
+                    }
+                } catch(IOException e) {
+                    Log.w("GameRunner", "Failed to refresh libopenal.so in "+dirPath, e);
+                }
+            }
         }
 
         File lwjglExtractDir = new File(Tools.DIR_CACHE, "lwjgl_native/"+versionId);
