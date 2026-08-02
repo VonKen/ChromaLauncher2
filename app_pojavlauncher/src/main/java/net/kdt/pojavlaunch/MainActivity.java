@@ -65,6 +65,7 @@ import net.kdt.pojavlaunch.utils.JREUtils;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;
 import net.kdt.pojavlaunch.utils.RendererCompatUtil;
+import net.kdt.pojavlaunch.utils.ThermalManager;
 import net.kdt.pojavlaunch.utils.jre.GameRunner;
 
 import java.io.File;
@@ -105,6 +106,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     private QuickSettingSideDialog mQuickSettingSideDialog;
     private AudioManager mAudioManager;
+    private ThermalManager mThermalManager;
 
     public static boolean mForceFullPanning = false;
     public static int mImeHeight = 0;
@@ -358,6 +360,10 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         if(mAudioManager != null && LauncherPreferences.PREF_COMMUNICATION_MODE) {
             mAudioManager.setMode(AudioManager.MODE_NORMAL);
         }
+        if(mThermalManager != null) {
+            mThermalManager.stop();
+            mThermalManager = null;
+        }
         JvmForegroundService.stop(this);
     }
 
@@ -414,9 +420,18 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         Logger.appendToLog("--------- Starting game with Launcher Debug!");
         Tools.printLauncherInfo(versionId, instance.getLaunchArgs(), renderer, this);
         JREUtils.redirectAndPrintJRELog();
+        startThermalManager();
         GameRunner.launchGame(this, account, instance, versionId, classpath, renderer);
         //Note that we actually stall in the above function, even if the game crashes. But let's be safe.
         Tools.runOnUiThread(()-> mServiceBinder.isActive = false);
+    }
+
+    /** Begin monitoring the device temperature to throttle before the system kills the game. */
+    private void startThermalManager() {
+        if(mThermalManager == null) {
+            mThermalManager = new ThermalManager(this);
+        }
+        mThermalManager.start();
     }
 
     private void dialogSendCustomKey() {

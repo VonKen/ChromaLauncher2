@@ -81,6 +81,7 @@ public class LauncherPreferences {
 
     public static String PREF_THEME_MODE = "system";
     public static boolean PREF_KEEP_GAME_BACKGROUND = true;
+    public static boolean PREF_THERMAL_THROTTLING = true;
 
 
     public static void loadPreferences(Context ctx) {
@@ -133,6 +134,7 @@ public class LauncherPreferences {
         PREF_COMMUNICATION_MODE = DEFAULT_PREF.getBoolean("communicationMode", false);
         PREF_THEME_MODE = DEFAULT_PREF.getString("theme_mode", "system");
         PREF_KEEP_GAME_BACKGROUND = DEFAULT_PREF.getBoolean("keepGameBackground", true);
+        PREF_THERMAL_THROTTLING = DEFAULT_PREF.getBoolean("thermalThrottling", true);
 
         String argLwjglLibname = "-Dorg.lwjgl.opengl.libname=";
         for (String arg : JREUtils.parseJavaArguments(PREF_CUSTOM_JAVA_ARGS)) {

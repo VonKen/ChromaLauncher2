@@ -5,6 +5,7 @@ project("MojoLauncher")
 
 add_library(pojavexec SHARED
         affinity.c
+        thermal_throttle.c
         jvm_hooks/emui_iterator_fix_hook.c
         jvm_hooks/java_exec_hooks.c
         jvm_hooks/lwjgl_dlopen_hook.c

@@ -39,6 +39,14 @@
             />
 
         <androidx.preference.SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="thermalThrottling"
+            android:summary="@string/preference_thermal_throttling_description"
+            android:title="@string/preference_thermal_throttling_title"
+            android:icon="@drawable/ic_px_volcano"
+            />
+
+        <androidx.preference.SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="alternate_surface"
             android:summary="@string/mcl_setting_subtitle_use_surface_view"
