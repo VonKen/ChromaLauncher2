@@ -50,14 +50,14 @@ static void create_affinity_set() {
     }
     printf("bigcore: big CPU number is %u, frequency %lu Hz\n", big_core_id, max_freq);
     CPU_ZERO(&bigcore_affinity_set);
-    CPU_SET_S(big_core_id, CPU_SETSIZE, &bigcore_affinity_set);
+    CPU_SET_S(big_core_id, sizeof(cpu_set_t), &bigcore_affinity_set);
     has_affinity_set = true;
 }
 
 void make_big_core_affine() {
     if(big_core_affine) return;
     if(!has_affinity_set) create_affinity_set();
-    int result = sched_setaffinity(0, CPU_SETSIZE, &bigcore_affinity_set);
+    int result = sched_setaffinity(0, sizeof(cpu_set_t), &bigcore_affinity_set);
     if(result != 0) {
         printf("bigcore: setting affinity failed: %s\n", strerror(result));
     }else{

@@ -63,14 +63,14 @@ static void init_little_cores() {
     if(has_different_frequencies) {
         for(unsigned int i = 0; i < corecnt; i++) {
             if(read_core_max_freq(i) == min_freq) {
-                CPU_SET_S(i, CPU_SETSIZE, &little_cores_set);
+                CPU_SET_S(i, sizeof(cpu_set_t), &little_cores_set);
             }
         }
         printf("%s: little cores set (min freq %lu Hz, %u cores)\n", THROTTLE_TAG, min_freq, corecnt);
     } else {
         // Homogeneous CPU, "little cores" is a no-op: allow every core
         for(unsigned int i = 0; i < corecnt; i++) {
-            CPU_SET_S(i, CPU_SETSIZE, &little_cores_set);
+            CPU_SET_S(i, sizeof(cpu_set_t), &little_cores_set);
         }
         printf("%s: homogeneous CPU, affinity is a no-op\n", THROTTLE_TAG);
     }
@@ -132,15 +132,15 @@ static unsigned int parse_online_list(cpu_set_t* out) {
             unsigned int end = (unsigned int) strtoul(dash + 1, NULL, 10);
             if(end >= CPU_SETSIZE) end = CPU_SETSIZE - 1;
             for(unsigned int i = start; i <= end; i++) {
-                CPU_SET_S(i, CPU_SETSIZE, out);
+                CPU_SET_S(i, sizeof(cpu_set_t), out);
             }
         } else {
             unsigned int core = (unsigned int) strtoul(token, NULL, 10);
-            if(core < CPU_SETSIZE) CPU_SET_S(core, CPU_SETSIZE, out);
+            if(core < CPU_SETSIZE) CPU_SET_S(core, sizeof(cpu_set_t), out);
         }
         token = strtok_r(NULL, ",", &saveptr);
     }
-    return CPU_COUNT_S(CPU_SETSIZE, out);
+    return CPU_COUNT_S(sizeof(cpu_set_t), out);
 }
 
 /** Remove any affinity restriction so the scheduler may place work on every online core. */
@@ -150,11 +150,11 @@ JNIEXPORT void JNICALL Java_net_kdt_pojavlaunch_utils_ThermalNative_spreadAcross
         if(!little_cores_init) init_little_cores();
         CPU_ZERO(&all_cores_set);
         for(unsigned int i = 0; i < total_core_count && i < CPU_SETSIZE; i++) {
-            CPU_SET_S(i, CPU_SETSIZE, &all_cores_set);
+            CPU_SET_S(i, sizeof(cpu_set_t), &all_cores_set);
         }
     }
     apply_affinity_to_all_threads(&all_cores_set);
-    printf("%s: spread load across all %u online cores\n", THROTTLE_TAG, (unsigned int) CPU_COUNT_S(CPU_SETSIZE, &all_cores_set));
+    printf("%s: spread load across all %u online cores\n", THROTTLE_TAG, (unsigned int) CPU_COUNT_S(sizeof(cpu_set_t), &all_cores_set));
 }
 
 JNIEXPORT void JNICALL Java_net_kdt_pojavlaunch_utils_ThermalNative_setLittleCoreAffinity(JNIEnv* env, jclass clazz, jboolean enable) {
@@ -171,7 +171,7 @@ JNIEXPORT void JNICALL Java_net_kdt_pojavlaunch_utils_ThermalNative_setLittleCor
         cpu_set_t all_cores_set;
         CPU_ZERO(&all_cores_set);
         for(unsigned int i = 0; i < total_core_count; i++) {
-            CPU_SET_S(i, CPU_SETSIZE, &all_cores_set);
+            CPU_SET_S(i, sizeof(cpu_set_t), &all_cores_set);
         }
         apply_affinity_to_all_threads(&all_cores_set);
         printf("%s: restored affinity to all cores\n", THROTTLE_TAG);
