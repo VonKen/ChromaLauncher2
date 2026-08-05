@@ -11,6 +11,7 @@ import net.kdt.pojavlaunch.downloader.Downloader;
 import net.kdt.pojavlaunch.downloader.TaskMetadata;
 import net.kdt.pojavlaunch.mirrors.DownloadMirror;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.Constants;
+import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDependency;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModItem;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModrinthIndex;
