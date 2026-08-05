@@ -129,6 +129,9 @@ public class CurseforgeApi implements ModpackApi{
         String[] mcVersionNames = new String[length];
         String[] versionUrls = new String[length];
         String[] hashes = new String[length];
+        String[] versionIds = new String[length];
+        String[][] versionGameVersions = new String[length][];
+        String[][] versionLoaders = new String[length][];
         for(int i = 0; i < allModDetails.size(); i++) {
             JsonObject modDetail = allModDetails.get(i);
             versionNames[i] = modDetail.get("displayName").getAsString();
@@ -137,6 +140,10 @@ public class CurseforgeApi implements ModpackApi{
             versionUrls[i] = downloadUrl.getAsString();
 
             JsonArray gameVersions = modDetail.getAsJsonArray("gameVersions");
+            versionGameVersions[i] = new String[gameVersions.size()];
+            for(int j = 0; j < gameVersions.size(); j++) {
+                versionGameVersions[i][j] = gameVersions.get(j).getAsString();
+            }
             for(JsonElement jsonElement : gameVersions) {
                 String gameVersion = jsonElement.getAsString();
                 if(!sMcVersionPattern.matcher(gameVersion).matches()) {
@@ -145,10 +152,12 @@ public class CurseforgeApi implements ModpackApi{
                 mcVersionNames[i] = gameVersion;
                 break;
             }
+            versionIds[i] = modDetail.get("id").getAsString();
+            versionLoaders[i] = new String[0];
 
             hashes[i] = getSha1FromModData(modDetail);
         }
-        return new ModDetail(item, versionNames, mcVersionNames, versionUrls, hashes);
+        return new ModDetail(item, versionNames, mcVersionNames, versionUrls, hashes, versionIds, versionGameVersions, versionLoaders);
     }
 
     @Override

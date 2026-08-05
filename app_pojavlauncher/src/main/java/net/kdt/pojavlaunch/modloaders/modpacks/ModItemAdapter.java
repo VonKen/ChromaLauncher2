@@ -31,6 +31,7 @@ import net.kdt.pojavlaunch.modloaders.modpacks.api.ModpackInstaller;
 import net.kdt.pojavlaunch.modloaders.modpacks.imagecache.ImageReceiver;
 import net.kdt.pojavlaunch.modloaders.modpacks.imagecache.ModIconCache;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.Constants;
+import net.kdt.pojavlaunch.modloaders.modpacks.models.InstanceInfo;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModItem;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchFilters;
@@ -66,6 +67,7 @@ public class ModItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private SearchResult mCurrentResult;
     private boolean mLastPage;
     private boolean mTasksRunning;
+    private InstanceInfo mInstanceInfo;
 
 
     public ModItemAdapter(Resources resources, ModpackApi api, SearchResultCallback callback) {
@@ -73,6 +75,10 @@ public class ModItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mModpackApi = api;
         mModItems = new ModItem[]{};
         mSearchResultCallback = callback;
+    }
+
+    public void setInstanceInfo(InstanceInfo instanceInfo) {
+        mInstanceInfo = instanceInfo;
     }
 
     public void performSearchQuery(SearchFilters searchFilters) {
@@ -280,6 +286,10 @@ public class ModItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 mExtendedErrorTextView.setVisibility(View.GONE);
                 mVersionAdapter.setObjects(Arrays.asList(detailedItem.versionNames));
                 mExtendedSpinner.setAdapter(mVersionAdapter);
+                // Automatically select a version compatible with the current instance
+                if (mInstanceInfo != null) {
+                    mExtendedSpinner.setSelection(ModpackInstaller.selectBestVersionIndex(detailedItem, mInstanceInfo));
+                }
             } else {
                 closeDetailedView();
                 setInstallEnabled(false);
@@ -356,7 +366,7 @@ public class ModItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ProgressLayout.setProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.global_waiting);
                 PojavApplication.sExecutorService.execute(() -> {
                     try {
-                        ModpackInstaller.downloadToInstance(mModDetail, selectedVersion, mSearchFilters.contentType);
+                        ModpackInstaller.downloadToInstance(mModpackApi, mModDetail, selectedVersion, mSearchFilters.contentType, mInstanceInfo);
                         Tools.runOnUiThread(() -> Toast.makeText(context,
                                 R.string.download_to_instance, Toast.LENGTH_SHORT).show());
                     } catch (Exception e) {

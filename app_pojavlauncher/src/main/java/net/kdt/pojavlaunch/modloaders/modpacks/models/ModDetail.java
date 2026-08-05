@@ -12,12 +12,23 @@ public class ModDetail extends ModItem {
     public String[] versionUrls;
     /* SHA 1 hashes, null if a hash is unavailable */
     public String[] versionHashes;
-    public ModDetail(ModItem item, String[] versionNames, String[] mcVersionNames, String[] versionUrls, String[] hashes) {
+    /* The underlying version ids, used to fetch version-specific data such as dependencies */
+    public String[] versionIds;
+    /* All supported game versions, indexed the same as versionNames */
+    public String[][] versionGameVersions;
+    /* All supported mod loaders (Modrinth slugs), indexed the same as versionNames */
+    public String[][] versionLoaders;
+
+    public ModDetail(ModItem item, String[] versionNames, String[] mcVersionNames, String[] versionUrls, String[] hashes,
+                     String[] versionIds, String[][] versionGameVersions, String[][] versionLoaders) {
         super(item.apiSource, item.isModpack, item.id, item.title, item.description, item.imageUrl);
         this.versionNames = versionNames;
         this.mcVersionNames = mcVersionNames;
         this.versionUrls = versionUrls;
         this.versionHashes = hashes;
+        this.versionIds = versionIds;
+        this.versionGameVersions = versionGameVersions;
+        this.versionLoaders = versionLoaders;
 
         // Add the mc version to the version model
         for (int i=0; i<versionNames.length; i++){

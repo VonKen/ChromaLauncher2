@@ -1,6 +1,7 @@
 package net.kdt.pojavlaunch.modloaders.modpacks.api;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.kdt.mcgui.ProgressLayout;
 
@@ -68,11 +69,17 @@ public class ModrinthApi implements ModpackApi{
         facetString.append(String.format("[\"project_type:%s\"]", projectType));
         if(searchFilters.mcVersion != null && !searchFilters.mcVersion.isEmpty())
             facetString.append(String.format(",[\"versions:%s\"]", searchFilters.mcVersion));
+        // Loader filtering only makes sense for mods, resource packs and shaders have no loaders
+        if(searchFilters.contentType == SearchFilters.TYPE_MOD
+                && searchFilters.modLoader != null && !searchFilters.modLoader.isEmpty())
+            facetString.append(String.format(",[\"categories:%s\"]", searchFilters.modLoader));
+        if(searchFilters.category != null && !searchFilters.category.isEmpty())
+            facetString.append(String.format(",[\"categories:%s\"]", searchFilters.category));
         facetString.append("]");
         params.put("facets", facetString.toString());
         params.put("query", searchFilters.name);
         params.put("limit", 50);
-        params.put("index", "relevance");
+        params.put("index", searchFilters.sort != null && !searchFilters.sort.isEmpty() ? searchFilters.sort : "relevance");
         if(modrinthSearchResult != null)
             params.put("offset", modrinthSearchResult.previousOffset);
 
@@ -110,11 +117,18 @@ public class ModrinthApi implements ModpackApi{
         String[] mcNames = new String[response.size()];
         String[] urls = new String[response.size()];
         String[] hashes = new String[response.size()];
+        String[] versionIds = new String[response.size()];
+        String[][] versionGameVersions = new String[response.size()][];
+        String[][] versionLoaders = new String[response.size()][];
 
         for (int i=0; i<response.size(); ++i) {
             JsonObject version = response.get(i).getAsJsonObject();
+            JsonArray gameVersions = version.getAsJsonArray("game_versions");
+            versionGameVersions[i] = toStringArray(gameVersions);
+            mcNames[i] = versionGameVersions[i].length > 0 ? versionGameVersions[i][0] : "";
+            versionLoaders[i] = toStringArray(version.getAsJsonArray("loaders"));
             names[i] = version.get("name").getAsString();
-            mcNames[i] = version.get("game_versions").getAsJsonArray().get(0).getAsString();
+            versionIds[i] = version.get("id").getAsString();
             urls[i] = version.get("files").getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString();
             // Assume there may not be hashes, in case the API changes
             JsonObject hashesMap = version.getAsJsonArray("files").get(0).getAsJsonObject()
@@ -127,7 +141,49 @@ public class ModrinthApi implements ModpackApi{
             hashes[i] = hashesMap.get("sha1").getAsString();
         }
 
-        return new ModDetail(item, names, mcNames, urls, hashes);
+        return new ModDetail(item, names, mcNames, urls, hashes, versionIds, versionGameVersions, versionLoaders);
+    }
+
+    @Override
+    public ModDependency[] getModDependencies(ModDetail modDetail, int selectedVersion) {
+        if (modDetail == null || modDetail.versionIds == null
+                || selectedVersion < 0 || selectedVersion >= modDetail.versionIds.length) return null;
+        String versionId = modDetail.versionIds[selectedVersion];
+        JsonObject response = mApiHandler.get(String.format("project/%s/version/%s", modDetail.id, versionId), JsonObject.class);
+        if(response == null) return null;
+        JsonArray dependencies = response.getAsJsonArray("dependencies");
+        if(dependencies == null) return null;
+        ModDependency[] result = new ModDependency[dependencies.size()];
+        for (int i=0; i<dependencies.size(); ++i) {
+            JsonObject dependency = dependencies.get(i).getAsJsonObject();
+            result[i] = new ModDependency(
+                    getNullableString(dependency, "project_id"),
+                    getNullableString(dependency, "version_id"),
+                    getNullableString(dependency, "file_name"),
+                    dependencyType(dependency.get("dependency_type"))
+            );
+        }
+        return result;
+    }
+
+    private static String getNullableString(JsonObject object, String member) {
+        JsonElement element = object.get(member);
+        return element == null || element.isJsonNull() ? null : element.getAsString();
+    }
+
+    private static int dependencyType(JsonElement element) {
+        String type = element == null || element.isJsonNull() ? null : element.getAsString();
+        if ("required".equals(type)) return ModDependency.TYPE_REQUIRED;
+        if ("incompatible".equals(type)) return ModDependency.TYPE_INCOMPATIBLE;
+        if ("embedded".equals(type)) return ModDependency.TYPE_EMBEDDED;
+        return ModDependency.TYPE_OPTIONAL;
+    }
+
+    private static String[] toStringArray(JsonArray jsonArray) {
+        if(jsonArray == null) return new String[0];
+        String[] result = new String[jsonArray.size()];
+        for (int i=0; i<jsonArray.size(); ++i) result[i] = jsonArray.get(i).getAsString();
+        return result;
     }
 
     @Override

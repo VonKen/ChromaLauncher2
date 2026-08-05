@@ -363,6 +363,18 @@
     <string name="shaders_label">Shaders</string>
     <string name="download_to_instance">Download to current instance</string>
 
+    <string name="mod_search_loader_label">Mod loader</string>
+    <string name="mod_search_loader_any">Any</string>
+    <string name="mod_search_loader_legacy_fabric">Legacy Fabric</string>
+    <string name="mod_search_category_label">Category</string>
+    <string name="mod_search_category_hint">e.g. technology, storage</string>
+    <string name="mod_search_sort_label">Sort by</string>
+    <string name="mod_search_sort_relevance">Relevance</string>
+    <string name="mod_search_sort_downloads">Downloads</string>
+    <string name="mod_search_sort_follows">Follows</string>
+    <string name="mod_search_sort_newest">Newest</string>
+    <string name="mod_search_sort_updated">Recently updated</string>
+
     <string name="preference_vulkan_driver_system_title">Use system Vulkan driver</string>
     <string name="preference_vulkan_driver_system_description">Force the launcher to use the system Vulkan driver instead of Turnip on Adreno GPUs. Only affects Zink and mods that use Vulkan.</string>
 

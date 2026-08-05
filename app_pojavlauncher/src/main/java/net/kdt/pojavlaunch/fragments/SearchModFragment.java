@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -28,15 +29,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.kdt.SimpleArrayAdapter;
 import com.kdt.mcgui.ProgressLayout;
 
 import git.artdeell.mojo.R;
 
 import net.kdt.pojavlaunch.PojavApplication;
 import net.kdt.pojavlaunch.Tools;
+import net.kdt.pojavlaunch.instances.Instances;
 import net.kdt.pojavlaunch.modloaders.modpacks.ModItemAdapter;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.CommonApi;
 import net.kdt.pojavlaunch.modloaders.modpacks.api.ModpackApi;
+import net.kdt.pojavlaunch.modloaders.modpacks.models.InstanceInfo;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchFilters;
 import net.kdt.pojavlaunch.profiles.VersionSelectorDialog;
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper;
@@ -49,6 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 
 public class SearchModFragment extends Fragment implements ModItemAdapter.SearchResultCallback {
@@ -132,6 +137,15 @@ public class SearchModFragment extends Fragment implements ModItemAdapter.Search
         mModItemAdapter = new ModItemAdapter(getResources(), modpackApi, this);
         ProgressKeeper.addTaskCountListener(mModItemAdapter);
         mOverlayTopCache = getResources().getDimension(R.dimen.fragment_padding_medium);
+
+        // Default the search filters to the currently selected instance so that
+        // the launcher downloads versions and dependencies that actually fit it
+        InstanceInfo instanceInfo = InstanceInfo.fromInstance(Instances.loadSelectedInstance());
+        if (instanceInfo != null) {
+            mSearchFilters.mcVersion = instanceInfo.mcVersion;
+            if (instanceInfo.loader != null) mSearchFilters.modLoader = instanceInfo.loader;
+            mModItemAdapter.setInstanceInfo(instanceInfo);
+        }
 
         mOverlay = view.findViewById(R.id.search_mod_overlay);
         mSearchEditText = view.findViewById(R.id.search_mod_edittext);
@@ -245,10 +259,40 @@ public class SearchModFragment extends Fragment implements ModItemAdapter.Search
             TextView mSelectedVersion = dialog.findViewById(R.id.search_mod_selected_mc_version_textview);
             Button mSelectVersionButton = dialog.findViewById(R.id.search_mod_mc_version_button);
             Button mApplyButton = dialog.findViewById(R.id.search_mod_apply_filters);
+            Spinner mLoaderSpinner = dialog.findViewById(R.id.search_mod_loader_spinner);
+            Spinner mSortSpinner = dialog.findViewById(R.id.search_mod_sort_spinner);
+            EditText mCategoryEditText = dialog.findViewById(R.id.search_mod_category_edittext);
 
             assert mSelectVersionButton != null;
             assert mSelectedVersion != null;
             assert mApplyButton != null;
+            assert mLoaderSpinner != null;
+            assert mSortSpinner != null;
+            assert mCategoryEditText != null;
+
+            // Loader filter
+            final String[] loaderSlugs = {null, "forge", "fabric", "quilt", "neoforge", "legacy_fabric"};
+            final String[] loaderNames = {
+                    getString(R.string.mod_search_loader_any),
+                    "Forge", "Fabric", "Quilt", "NeoForge",
+                    getString(R.string.mod_search_loader_legacy_fabric)
+            };
+            mLoaderSpinner.setAdapter(new SimpleArrayAdapter<>(Arrays.asList(loaderNames)));
+            mLoaderSpinner.setSelection(indexOf(loaderSlugs, mSearchFilters.modLoader));
+
+            // Sort filter
+            final String[] sortSlugs = {"relevance", "downloads", "follows", "newest", "updated"};
+            final String[] sortNames = {
+                    getString(R.string.mod_search_sort_relevance),
+                    getString(R.string.mod_search_sort_downloads),
+                    getString(R.string.mod_search_sort_follows),
+                    getString(R.string.mod_search_sort_newest),
+                    getString(R.string.mod_search_sort_updated)
+            };
+            mSortSpinner.setAdapter(new SimpleArrayAdapter<>(Arrays.asList(sortNames)));
+            mSortSpinner.setSelection(indexOf(sortSlugs, mSearchFilters.sort));
+
+            mCategoryEditText.setText(mSearchFilters.category);
 
             // Setup the expendable list behavior
             mSelectVersionButton.setOnClickListener(v -> VersionSelectorDialog.open(v.getContext(), true, (id, snapshot)-> mSelectedVersion.setText(id)));
@@ -259,11 +303,23 @@ public class SearchModFragment extends Fragment implements ModItemAdapter.Search
             // Apply the new settings
             mApplyButton.setOnClickListener(v -> {
                 mSearchFilters.mcVersion = mSelectedVersion.getText().toString();
+                mSearchFilters.modLoader = loaderSlugs[mLoaderSpinner.getSelectedItemPosition()];
+                mSearchFilters.sort = sortSlugs[mSortSpinner.getSelectedItemPosition()];
+                String category = mCategoryEditText.getText().toString().trim();
+                mSearchFilters.category = category.isEmpty() ? null : category;
                 searchMods(mSearchEditText.getText().toString());
                 dialogInterface.dismiss();
             });
         });
 
         dialog.show();
+    }
+
+    private static int indexOf(String[] array, String value) {
+        if (value == null) return 0;
+        for (int i = 0; i < array.length; ++i) {
+            if (value.equals(array[i])) return i;
+        }
+        return 0;
     }
 }

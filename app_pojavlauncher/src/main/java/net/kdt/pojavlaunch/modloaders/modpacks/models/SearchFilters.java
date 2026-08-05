@@ -14,6 +14,12 @@ public class SearchFilters {
     public int contentType = TYPE_MODPACK;
     public String name;
     @Nullable public String mcVersion;
+    /** Modrinth loader slug ("forge", "fabric", "quilt", "neoforge", "legacy_fabric") or null for any */
+    @Nullable public String modLoader;
+    /** Modrinth category slug or null for any */
+    @Nullable public String category;
+    /** Modrinth index value ("relevance", "downloads", "follows", "newest", "updated") or null for relevance */
+    @Nullable public String sort;
 
     /** @deprecated Use {@link #contentType} instead */
     @Deprecated

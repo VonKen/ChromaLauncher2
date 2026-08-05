@@ -292,6 +292,17 @@
     <string name="modpack_install_modloader_download_failed">Не удалось загрузить файлы загрузчика модов</string>
     <string name="modpack_install_download_failed">Не удалось загрузить файлы сборки</string>
     <string name="modpack_install_instance_button">Установка со сборкой модов</string>
+    <string name="mod_search_loader_label">Модлоадер</string>
+    <string name="mod_search_loader_any">Любой</string>
+    <string name="mod_search_loader_legacy_fabric">Legacy Fabric</string>
+    <string name="mod_search_category_label">Категория</string>
+    <string name="mod_search_category_hint">напр. technology, storage</string>
+    <string name="mod_search_sort_label">Сортировка</string>
+    <string name="mod_search_sort_relevance">По релевантности</string>
+    <string name="mod_search_sort_downloads">По количеству загрузок</string>
+    <string name="mod_search_sort_follows">По количеству подписок</string>
+    <string name="mod_search_sort_newest">Сначала новые</string>
+    <string name="mod_search_sort_updated">Недавно обновлённые</string>
     <string name="notif_error_occured">Возникла ошибка</string>
     <string name="notif_error_occured_desc">Нажмите для получения дополнительных сведений</string>
     <string name="fabric_dl_only_stable">Только стабильные версии</string>

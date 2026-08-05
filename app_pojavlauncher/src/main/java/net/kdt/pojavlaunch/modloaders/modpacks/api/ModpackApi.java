@@ -9,6 +9,7 @@ import net.kdt.pojavlaunch.PojavApplication;
 import git.artdeell.mojo.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
+import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDependency;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModItem;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchFilters;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchResult;
@@ -62,6 +63,16 @@ public interface ModpackApi {
     }
 
     ModLoader installLocalModpack(String modpackName, File modpackFile, String icon) throws IOException;
+
+    /**
+     * Fetch the dependencies of a specific version of a mod(pack).
+     * @param modDetail The mod detail data
+     * @param selectedVersion The selected version
+     * @return the dependencies, or null if unavailable
+     */
+    default ModDependency[] getModDependencies(ModDetail modDetail, int selectedVersion) {
+        return null;
+    }
 
     /**
      * Install the mod(pack).
