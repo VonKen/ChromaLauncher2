@@ -64,6 +64,8 @@ public class LauncherPreferences {
     public static boolean PREF_SPREAD_CORES = false;
     public static boolean PREF_ZINK_PREFER_SYSTEM_DRIVER = false;
     public static boolean PREF_ZINK_FORCE_LEGACY = false;
+    public static String PREF_VK_DRIVER = "Turnip";
+    public static boolean PREF_VK_DRIVER_SYSTEM = false;
     
     public static boolean PREF_VERIFY_MANIFEST = true;
     public static String PREF_DOWNLOAD_SOURCE = "default";
@@ -123,6 +125,8 @@ public class LauncherPreferences {
         PREF_BIG_CORE_AFFINITY = DEFAULT_PREF.getBoolean("bigCoreAffinity", false);
         PREF_SPREAD_CORES = DEFAULT_PREF.getBoolean("spreadCores", false);
         PREF_ZINK_PREFER_SYSTEM_DRIVER = DEFAULT_PREF.getBoolean("zinkPreferSystemDriver", false);
+        PREF_VK_DRIVER = DEFAULT_PREF.getString("vkDriver", "Turnip");
+        PREF_VK_DRIVER_SYSTEM = DEFAULT_PREF.getBoolean("vkDriverSystem", false);
         PREF_DOWNLOAD_SOURCE = DEFAULT_PREF.getString("downloadSource", "default");
         PREF_VERIFY_MANIFEST = DEFAULT_PREF.getBoolean("verifyManifest", true);
         PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = DEFAULT_PREF.getBoolean(PREF_KEY_SKIP_NOTIFICATION_CHECK, false);

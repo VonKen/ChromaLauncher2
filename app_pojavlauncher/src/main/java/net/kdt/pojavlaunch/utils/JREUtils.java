@@ -12,6 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import net.kdt.pojavlaunch.plugins.RendererPlugin;
 
+import com.chromalauncher.app.data.Renderer;
+import com.chromalauncher.app.manager.RendererManager;
+import com.chromalauncher.app.plugins.DriverPlugin;
+import com.chromalauncher.app.plugins.NativeLibPlugin;
+
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -81,6 +86,52 @@ public class JREUtils {
         reader.close();
     }
 
+    // Applies the Fold Craft Launcher plugin renderer's environment (boatEnv/pojavEnv)
+    private static void addRendererPluginEnv(Map<String, String> envMap, Renderer renderer) {
+        String eglName = renderer.getEglName();
+        if (eglName.startsWith("/")) {
+            eglName = renderer.getPath() + eglName;
+        } else {
+            eglName = renderer.getPath() + "/" + eglName;
+        }
+        envMap.put("POJAVEXEC_EGL", eglName);
+        applyPluginEnvList(envMap, renderer.getBoatEnv(), renderer.getPath());
+        applyPluginEnvList(envMap, renderer.getPojavEnv(), renderer.getPath());
+    }
+
+    private static void applyPluginEnvList(Map<String, String> envMap, List<String> envList, String path) {
+        if (envList == null) return;
+        for (String env : envList) {
+            String[] split = env.split("=");
+            if (split[0].equals("DLOPEN") || split.length < 2) {
+                continue;
+            }
+            if (split[0].equals("LIB_MESA_NAME") || split[0].equals("MESA_LIBRARY")) {
+                envMap.put(split[0], path + "/" + split[1]);
+            } else {
+                envMap.put(split[0], split[1]);
+            }
+        }
+    }
+
+    // Preloads the libraries listed in a plugin renderer's DLOPEN entries
+    private static void preloadPluginDlopenLibs(Renderer renderer) {
+        List<String> envList = renderer.getPojavEnv();
+        if (envList == null) return;
+        for (String env : envList) {
+            String[] split = env.split("=");
+            if (split[0].equals("DLOPEN") && split.length > 1) {
+                String[] libs = split[1].split(",");
+                for (String lib : libs) {
+                    String path = renderer.getPath() + "/" + lib;
+                    try {
+                        System.load(path);
+                    }catch (Throwable ignored) { }
+                }
+            }
+        }
+    }
+
     // Sets up ANGLE driver environment
     public static void setupAngleEnv(Context ctx, Map<String, String> envMap) {
         if (!LauncherPreferences.PREF_USE_ANGLE) return;
@@ -139,6 +190,17 @@ public class JREUtils {
         // Init mesa renderers
         MesaUtils.initEnvironment(context, renderer, envMap);
 
+        // Fold Craft Launcher plugin renderer support
+        Renderer fclRenderer = RendererManager.getRenderer(renderer);
+        if (!fclRenderer.getPath().isEmpty()) {
+            addRendererPluginEnv(envMap, fclRenderer);
+        }
+
+        // Fold Craft Launcher Vulkan driver plugin support
+        DriverPlugin.selectDriver(LauncherPreferences.PREF_VK_DRIVER);
+        envMap.put("DRIVER_PATH", DriverPlugin.getSelected().getPath());
+        if(LauncherPreferences.PREF_VK_DRIVER_SYSTEM) envMap.put("VULKAN_DRIVER_SYSTEM", "1");
+
         setRendererLibraryPath(Tools.NATIVE_LIB_DIR, MesaUtils.getCustomZinkLibraryPath());
         envMap.put("POJAV_NATIVEDIR", Tools.NATIVE_LIB_DIR);
 
@@ -158,8 +220,12 @@ public class JREUtils {
             envMap.put("ALSOFT_CAPTURE_DRIVERS", "aaudio,opensles");
         }
 
-        if(GLInfoUtils.getGlInfo().isAdreno() && !PREF_ZINK_PREFER_SYSTEM_DRIVER) {
+        boolean useTurnip = "Turnip".equals(DriverPlugin.getSelected().getDriver()) &&
+                !LauncherPreferences.PREF_VK_DRIVER_SYSTEM && !PREF_ZINK_PREFER_SYSTEM_DRIVER;
+        if(GLInfoUtils.getGlInfo().isAdreno() && useTurnip) {
             setUseTurnip(true);
+        } else {
+            setUseTurnip(false);
         }
 
         if(LauncherPreferences.PREF_FREEDRENO_SYSMEM) {
@@ -168,6 +234,10 @@ public class JREUtils {
             envMap.put("FD_MESA_DEBUG", "sysmem");
             envMap.put("TU_DEBUG", "sysmem");
         }
+
+        // Fold Craft Launcher native lib plugins; applied before custom env so the
+        // user's custom_env.txt still takes precedence.
+        envMap.putAll(NativeLibPlugin.INSTANCE.getJVMEnv());
 
         overrideEnvVars(envMap);
 
@@ -286,20 +356,33 @@ public class JREUtils {
                 glesVersion = Integer.parseInt((String) ExtraCore.getValue(ExtraConstants.OPEN_GL_VERSION));
                 break;
             default:
-                // Check if this is a renderer plugin
-                RendererPlugin plugin = RendererPlugin.findPlugin(renderer);
-                if (plugin != null && plugin.isInstalled()) {
+                // Check if this is a Fold Craft Launcher renderer plugin
+                Renderer fclRenderer = RendererManager.getRenderer(renderer);
+                if (!fclRenderer.getPath().isEmpty()) {
                     // Use full absolute path and bypass namespace for plugin libraries
-                    renderLibrary = plugin.resolveAbsolutePath();
+                    preloadPluginDlopenLibs(fclRenderer);
+                    renderLibrary = fclRenderer.getGLPath();
                     useGles = true;
                     bypassNamespace = true;
                     glesVersion = 3;
                     // Add plugin's lib directory so dlopen can resolve dependencies
-                    setRendererLibraryPath(Tools.NATIVE_LIB_DIR, plugin.getLibraryPath());
+                    setRendererLibraryPath(Tools.NATIVE_LIB_DIR, fclRenderer.getPath());
                 } else {
-                    renderLibrary = "libgl4es_114.so";
-                    useGles = true;
-                    glesVersion = Integer.parseInt((String) ExtraCore.getValue(ExtraConstants.OPEN_GL_VERSION));
+                    // Check if this is a renderer plugin
+                    RendererPlugin plugin = RendererPlugin.findPlugin(renderer);
+                    if (plugin != null && plugin.isInstalled()) {
+                        // Use full absolute path and bypass namespace for plugin libraries
+                        renderLibrary = plugin.resolveAbsolutePath();
+                        useGles = true;
+                        bypassNamespace = true;
+                        glesVersion = 3;
+                        // Add plugin's lib directory so dlopen can resolve dependencies
+                        setRendererLibraryPath(Tools.NATIVE_LIB_DIR, plugin.getLibraryPath());
+                    } else {
+                        renderLibrary = "libgl4es_114.so";
+                        useGles = true;
+                        glesVersion = Integer.parseInt((String) ExtraCore.getValue(ExtraConstants.OPEN_GL_VERSION));
+                    }
                 }
                 break;
         }

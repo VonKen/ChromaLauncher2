@@ -37,6 +37,13 @@
         android:visibility="gone" />
 
     <com.kdt.mcgui.MineButton
+        android:id="@+id/vulkan_driver_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/padding_medium"
+        android:text="@string/renderer_plugin_vulkan_driver" />
+
+    <com.kdt.mcgui.MineButton
         android:id="@+id/install_renderer_apk_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

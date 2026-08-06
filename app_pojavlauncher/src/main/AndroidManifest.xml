@@ -143,6 +143,9 @@
             android:foregroundServiceType="dataSync" />
     </application>
     <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
         <package android:name="git.mojo.ffmpeg"/>
         <package android:name="git.mojo.angle"/>
         <package android:name="git.mojo.zink"/>

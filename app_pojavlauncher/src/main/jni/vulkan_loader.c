@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <dlfcn.h>
 #include <stdlib.h>
+#include <string.h>
 #include <jni.h>
+#include <limits.h>
 
 #define TAG __FILE_NAME__
 #include <log.h>
@@ -22,11 +24,24 @@ bool load_turnip_vulkan() {
     static bool driver_loaded = false;
     if(driver_loaded) return true;
 
+    // Fold Craft Launcher style: prefer the selected driver plugin's native dir,
+    // falling back to the launcher's bundled Turnip libraries.
+    const char* driver_path = getenv("DRIVER_PATH");
+    const char* ns_dir = pojavexec_getNativeDirectory();
+    if(driver_path != NULL && driver_path[0] != '\0') ns_dir = driver_path;
+    if(!linker_ns_load(ns_dir)) return NULL;
+
+    // Use absolute paths so the lookup works regardless of which directory
+    // happened to initialize the (singleton) driver namespace first.
+    char linkerhook_path[PATH_MAX];
+    char freedreno_path[PATH_MAX];
+    snprintf(linkerhook_path, sizeof(linkerhook_path), "%s/liblinkerhook.so", ns_dir);
+    snprintf(freedreno_path, sizeof(freedreno_path), "%s/libvulkan_freedreno.so", ns_dir);
+
     const char* cache_dir = getenv("TMPDIR");
-    if(!linker_ns_load(pojavexec_getNativeDirectory())) return NULL;
-    void* linkerhook = linker_ns_dlopen("liblinkerhook.so", RTLD_LOCAL | RTLD_NOW);
+    void* linkerhook = linker_ns_dlopen(linkerhook_path, RTLD_LOCAL | RTLD_NOW);
     if(linkerhook == NULL) return NULL;
-    void* turnip_driver_handle = linker_ns_dlopen("libvulkan_freedreno.so", RTLD_LOCAL | RTLD_NOW);
+    void* turnip_driver_handle = linker_ns_dlopen(freedreno_path, RTLD_LOCAL | RTLD_NOW);
     if(turnip_driver_handle == NULL) {
         printf("DriverHook: Failed to load Turnip!\n%s\n", dlerror());
         goto fail_l;
@@ -56,7 +71,10 @@ bool load_turnip_vulkan() {
 
 void* pojavexec_loadVulkanDriver() {
 #ifdef ENABLE_TURNIP_LOADER
-    if(android_get_device_api_level() >= 28) { // the loader does not support below that
+    // VULKAN_DRIVER_SYSTEM=1 forces the system Vulkan driver (Turnip bypassed)
+    const char* system_driver = getenv("VULKAN_DRIVER_SYSTEM");
+    bool prefer_system = system_driver != NULL && strcmp(system_driver, "0") != 0;
+    if(!prefer_system && android_get_device_api_level() >= 28) { // the loader does not support below that
         if(turnip_enabled && load_turnip_vulkan())
             // Reference the vulkan driver separately to avoid weirdness from libraries calling dlclose
             return linker_ns_dlopen("libmjlvlk.so", RTLD_LOCAL);
@@ -71,7 +89,9 @@ void* pojavexec_loadVulkanDriver() {
 JNIEXPORT void JNICALL
 Java_net_kdt_pojavlaunch_utils_JREUtils_preloadVulkan(JNIEnv *env, jclass clazz) {
 #ifdef ENABLE_TURNIP_LOADER
-    if(!turnip_enabled) return;
+    const char* system_driver = getenv("VULKAN_DRIVER_SYSTEM");
+    bool prefer_system = system_driver != NULL && strcmp(system_driver, "0") != 0;
+    if(prefer_system || !turnip_enabled) return;
     if(!load_turnip_vulkan()) {
         printf("Failed to preload Turnip!\n");
     }

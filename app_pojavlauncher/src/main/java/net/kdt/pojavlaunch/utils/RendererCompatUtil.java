@@ -8,8 +8,11 @@ import android.content.res.Resources;
 import android.os.Build;
 
 import net.kdt.pojavlaunch.Architecture;
+import net.kdt.pojavlaunch.PojavApplication;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.plugins.RendererPlugin;
+
+import com.chromalauncher.app.manager.RendererManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -65,6 +68,14 @@ public class RendererCompatUtil {
             }
         }
 
+        // Discover and add Fold Craft Launcher renderer plugins
+        for (com.chromalauncher.app.data.Renderer fclRenderer : RendererManager.INSTANCE.getRendererList()) {
+            if (!rendererIds.contains(fclRenderer.getId())) {
+                rendererIds.add(fclRenderer.getId());
+                rendererNames.add(fclRenderer.getName());
+            }
+        }
+
         sCompatibleRenderers = new RenderersList(rendererIds,
                 rendererNames.toArray(new String[0]));
 
@@ -80,6 +91,9 @@ public class RendererCompatUtil {
     public static void releaseRenderersCache() {
         sCompatibleRenderers = null;
         RendererPlugin.releaseCache();
+        if (PojavApplication.instance != null) {
+            RendererManager.INSTANCE.refresh(PojavApplication.instance);
+        }
         System.gc();
     }
 

@@ -580,6 +580,8 @@
     <string name="renderer_plugin_install_apk">Install Renderer APK</string>
     <string name="renderer_plugin_no_plugins">No renderer plugins installed</string>
     <string name="renderer_plugin_scan_hint">Renderer plugins are APK packages with prefix \"git.mojo.renderer.*\" that provide additional rendering backends.</string>
+    <string name="renderer_plugin_vulkan_driver">Vulkan Driver</string>
+    <string name="renderer_plugin_vulkan_system_driver">Use system Vulkan driver</string>
     <string name="mobileglues_settings">MobileGlues Settings</string>
 
     <!-- Theme -->

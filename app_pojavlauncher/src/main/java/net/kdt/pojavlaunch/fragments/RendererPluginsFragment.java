@@ -14,13 +14,19 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.chromalauncher.app.data.Renderer;
+import com.chromalauncher.app.manager.RendererManager;
+import com.chromalauncher.app.plugins.DriverPlugin;
+
 import git.artdeell.mojo.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.plugins.RendererPlugin;
+import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 import net.kdt.pojavlaunch.utils.RendererCompatUtil;
 
 import java.util.ArrayList;
@@ -57,7 +63,47 @@ public class RendererPluginsFragment extends Fragment {
             Tools.swapFragment(requireActivity(), MobileGluesConfigFragment.class, MobileGluesConfigFragment.TAG, null);
         });
 
+        view.findViewById(R.id.vulkan_driver_button).setOnClickListener(v -> showVulkanDriverDialog());
+
         loadRenderers();
+    }
+
+    private void showVulkanDriverDialog() {
+        Context context = getContext();
+        if (context == null) return;
+
+        DriverPlugin.INSTANCE.refresh(context);
+        java.util.List<DriverPlugin.Driver> drivers = DriverPlugin.INSTANCE.getDriverList();
+        String[] names = new String[drivers.size()];
+        int checked = 0;
+        String current = LauncherPreferences.PREF_VK_DRIVER;
+        for (int i = 0; i < drivers.size(); i++) {
+            DriverPlugin.Driver driver = drivers.get(i);
+            names[i] = driver.getDriver() + " (" + driver.getPath() + ")";
+            if (driver.getDriver().equals(current)) checked = i;
+        }
+
+        boolean[] systemChecked = new boolean[]{LauncherPreferences.PREF_VK_DRIVER_SYSTEM};
+
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.renderer_plugin_vulkan_driver)
+                .setSingleChoiceItems(names, checked, (dialog, which) -> {
+                    String selectedDriver = drivers.get(which).getDriver();
+                    LauncherPreferences.PREF_VK_DRIVER = selectedDriver;
+                    LauncherPreferences.DEFAULT_PREF.edit().putString("vkDriver", selectedDriver).apply();
+                })
+                .setMultiChoiceItems(
+                        new String[]{context.getString(R.string.renderer_plugin_vulkan_system_driver)},
+                        new boolean[]{systemChecked[0]},
+                        (dialog, which, isChecked) -> {
+                            systemChecked[0] = isChecked;
+                            LauncherPreferences.PREF_VK_DRIVER_SYSTEM = isChecked;
+                            LauncherPreferences.DEFAULT_PREF.edit().putBoolean("vkDriverSystem", isChecked).apply();
+                        }
+                )
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     private void loadRenderers() {
@@ -88,6 +134,16 @@ public class RendererPluginsFragment extends Fragment {
                         plugin.getRendererId(),
                         plugin.getDisplayName(),
                         plugin.isInstalled(),
+                        true
+                ));
+            }
+
+            // Discover Fold Craft Launcher renderer plugins
+            for (Renderer fclRenderer : RendererManager.INSTANCE.getRendererList()) {
+                entries.add(new RendererEntry(
+                        fclRenderer.getId(),
+                        fclRenderer.getName(),
+                        true,
                         true
                 ));
             }

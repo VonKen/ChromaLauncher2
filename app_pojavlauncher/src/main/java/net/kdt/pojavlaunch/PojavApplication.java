@@ -35,6 +35,7 @@ import git.artdeell.mojo.BuildConfig;
 public class PojavApplication extends Application {
 	public static final String CRASH_REPORT_TAG = "PojavCrashReport";
 	public static final ExecutorService sExecutorService = new ThreadPoolExecutor(4, 4, 500, TimeUnit.MILLISECONDS,  new LinkedBlockingQueue<>());
+	public static PojavApplication instance;
 
 	private void installFatalErrorHandler() {
 		Thread.setDefaultUncaughtExceptionHandler((thread, th) -> {
@@ -65,6 +66,7 @@ public class PojavApplication extends Application {
 
 	@Override
 	public void onCreate() {
+		instance = this;
 		ContextExecutor.setApplication(this);
 		// Disable fatal errors on gplay. This is necessary so that google can collect crash report data and send it to me
 		// (where i can find the cause and fix it)
