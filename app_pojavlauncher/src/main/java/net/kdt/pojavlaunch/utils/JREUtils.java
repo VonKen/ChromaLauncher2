@@ -19,6 +19,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.chromalauncher.app.data.Renderer;
+import com.chromalauncher.app.manager.RendererManager;
+import com.chromalauncher.app.plugins.DriverPlugin;
+import com.chromalauncher.app.plugins.NativeLibPlugin;
 import com.oracle.dalvik.*;
 import java.io.*;
 import java.util.*;
@@ -166,6 +170,15 @@ public class JREUtils {
                 .append("/vendor/").append(libName).append(":")
                 .append("/vendor/").append(libName).append("/hw:")
                 .append(NATIVE_LIB_DIR);
+        // Plugin renderer + native lib plugin paths (Fold Craft Launcher plugin system)
+        String rendererPath = RendererManager.getRenderer(LOCAL_RENDERER).getPath();
+        if (!rendererPath.isEmpty()) {
+            ldLibraryPath.append(":").append(rendererPath);
+        }
+        String nativePluginPaths = NativeLibPlugin.INSTANCE.getPaths(":");
+        if (!nativePluginPaths.isEmpty()) {
+            ldLibraryPath.append(":").append(nativePluginPaths);
+        }
         LD_LIBRARY_PATH = ldLibraryPath.toString();
     }
 
@@ -214,11 +227,19 @@ public class JREUtils {
 
         if(LOCAL_RENDERER != null) {
             envMap.put("POJAV_RENDERER", LOCAL_RENDERER);
-            if(LOCAL_RENDERER.equals("opengles3_ltw")) {
+            Renderer renderer = RendererManager.getRenderer(LOCAL_RENDERER);
+            if (!renderer.getPath().isEmpty()) {
+                // Plugin renderer (Fold Craft Launcher plugin system)
+                addRendererPluginEnv(envMap, renderer);
+            } else if(LOCAL_RENDERER.equals("opengles3_ltw")) {
                 envMap.put("LIBGL_ES", "3");
                 envMap.put("POJAVEXEC_EGL","libltw.so"); // Use ANGLE EGL
             }
         }
+        // Vulkan driver plugin support (Fold Craft Launcher plugin system)
+        DriverPlugin.selectDriver(LauncherPreferences.PREF_VK_DRIVER);
+        envMap.put("DRIVER_PATH", DriverPlugin.getSelected().getPath());
+        if(LauncherPreferences.PREF_VK_DRIVER_SYSTEM) envMap.put("VULKAN_DRIVER_SYSTEM", "1");
         if(LauncherPreferences.PREF_BIG_CORE_AFFINITY) envMap.put("POJAV_BIG_CORE_AFFINITY", "1");
         envMap.put("AWTSTUB_WIDTH", Integer.toString(CallbackBridge.windowWidth > 0 ? CallbackBridge.windowWidth : CallbackBridge.physicalWidth));
         envMap.put("AWTSTUB_HEIGHT", Integer.toString(CallbackBridge.windowHeight > 0 ? CallbackBridge.windowHeight : CallbackBridge.physicalHeight));
@@ -244,6 +265,10 @@ public class JREUtils {
             envMap.put("POJAV_LOAD_TURNIP", "1");
         }
 
+        // Native lib plugins (Fold Craft Launcher plugin system); applied before custom env so the
+        // user's custom_env.txt still takes precedence.
+        envMap.putAll(NativeLibPlugin.INSTANCE.getJVMEnv());
+
         readCustomEnv(envMap); // Must be last so it overrides anything the user sets for obvious reasons.
 
         for (Map.Entry<String, String> env : envMap.entrySet()) {
@@ -262,6 +287,33 @@ public class JREUtils {
         setLdLibraryPath(jvmLibraryPath+":"+LD_LIBRARY_PATH);
 
         // return ldLibraryPath;
+    }
+
+    private static void addRendererPluginEnv(Map<String, String> envMap, Renderer renderer) {
+        String eglName = renderer.getEglName();
+        if (eglName.startsWith("/")) {
+            eglName = renderer.getPath() + eglName;
+        } else {
+            eglName = renderer.getPath() + "/" + eglName;
+        }
+        envMap.put("POJAVEXEC_EGL", eglName);
+        applyPluginEnvList(envMap, renderer.getBoatEnv(), renderer.getPath());
+        applyPluginEnvList(envMap, renderer.getPojavEnv(), renderer.getPath());
+    }
+
+    private static void applyPluginEnvList(Map<String, String> envMap, List<String> envList, String path) {
+        if (envList == null) return;
+        for (String env : envList) {
+            String[] split = env.split("=");
+            if (split[0].equals("DLOPEN") || split.length < 2) {
+                continue;
+            }
+            if (split[0].equals("LIB_MESA_NAME") || split[0].equals("MESA_LIBRARY")) {
+                envMap.put(split[0], path + "/" + split[1]);
+            } else {
+                envMap.put(split[0], split[1]);
+            }
+        }
     }
 
     private static void readCustomEnv(Map<String, String> envMap) throws IOException {
@@ -462,18 +514,36 @@ public class JREUtils {
      */
     public static String loadGraphicsLibrary(){
         if(LOCAL_RENDERER == null) return null;
+        Renderer renderer = RendererManager.getRenderer(LOCAL_RENDERER);
         String renderLibrary;
-        switch (LOCAL_RENDERER){
-            case "opengles2":
-            case "opengles2_5":
-            case "opengles3":
-                renderLibrary = "libgl4es_114.so"; break;
-            case "vulkan_zink": renderLibrary = "libOSMesa.so"; break;
-            case "opengles3_ltw" : renderLibrary = "libltw.so"; break;
-            default:
-                Log.w("RENDER_LIBRARY", "No renderer selected, defaulting to opengles2");
-                renderLibrary = "libgl4es_114.so";
-                break;
+        if (!renderer.getPath().isEmpty()) {
+            // Plugin renderer: preload its DLOPEN libraries then the GL library itself
+            List<String> envList = renderer.getPojavEnv();
+            if (envList != null) {
+                for (String env : envList) {
+                    String[] split = env.split("=");
+                    if (split[0].equals("DLOPEN") && split.length > 1) {
+                        String[] libs = split[1].split(",");
+                        for (String lib : libs) {
+                            dlopen(renderer.getPath() + "/" + lib);
+                        }
+                    }
+                }
+            }
+            renderLibrary = renderer.getGLPath();
+        } else {
+            switch (LOCAL_RENDERER){
+                case "opengles2":
+                case "opengles2_5":
+                case "opengles3":
+                    renderLibrary = "libgl4es_114.so"; break;
+                case "vulkan_zink": renderLibrary = "libOSMesa.so"; break;
+                case "opengles3_ltw" : renderLibrary = "libltw.so"; break;
+                default:
+                    Log.w("RENDER_LIBRARY", "No renderer selected, defaulting to opengles2");
+                    renderLibrary = "libgl4es_114.so";
+                    break;
+            }
         }
 
         if (!dlopen(renderLibrary) && !dlopen(findInLdLibPath(renderLibrary))) {

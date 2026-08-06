@@ -44,6 +44,9 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 
+import com.chromalauncher.app.data.Renderer;
+import com.chromalauncher.app.manager.RendererManager;
+
 import net.kdt.pojavlaunch.customcontrols.ControlButtonMenuListener;
 import net.kdt.pojavlaunch.customcontrols.ControlData;
 import net.kdt.pojavlaunch.customcontrols.ControlDrawerData;
@@ -355,6 +358,15 @@ public class GameActivity extends BaseActivity implements ControlButtonMenuListe
             Log.w("runCraft","Incompatible renderer "+Tools.LOCAL_RENDERER+ " will be replaced with "+firstCompatibleRenderer);
             Tools.LOCAL_RENDERER = firstCompatibleRenderer;
             Tools.releaseRenderersCache();
+        }
+        // Plugin renderers may restrict the supported Minecraft version range (FCL plugin system)
+        Renderer pluginRenderer = RendererManager.getRenderer(Tools.LOCAL_RENDERER);
+        if(!pluginRenderer.getMinMCver().isEmpty() && versionId.compareTo(pluginRenderer.getMinMCver()) < 0) {
+            Log.w("runCraft","Renderer "+Tools.LOCAL_RENDERER+" requires at least Minecraft "+pluginRenderer.getMinMCver());
+            Tools.LOCAL_RENDERER = "opengles2";
+        } else if(!pluginRenderer.getMaxMCver().isEmpty() && versionId.compareTo(pluginRenderer.getMaxMCver()) > 0) {
+            Log.w("runCraft","Renderer "+Tools.LOCAL_RENDERER+" supports at most Minecraft "+pluginRenderer.getMaxMCver());
+            Tools.LOCAL_RENDERER = "opengles2";
         }
         MinecraftAccount minecraftAccount = PojavProfile.getCurrentProfileContent(this, null);
         Logger.appendToLog("--------- Starting game with Launcher Debug!");

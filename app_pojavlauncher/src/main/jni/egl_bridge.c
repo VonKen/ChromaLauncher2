@@ -100,10 +100,16 @@ EXTERNAL_API void* pojavGetCurrentContext() {
 //#define ADRENO_POSSIBLE
 #ifdef ADRENO_POSSIBLE
 void* load_turnip_vulkan() {
-    if(getenv("POJAV_LOAD_TURNIP") == NULL) return NULL;
-    const char* native_dir = getenv("POJAV_NATIVEDIR");
-    const char* cache_dir = getenv("TMPDIR");
+    const char* driver_path = getenv("DRIVER_PATH");
+    const char* native_dir = driver_path != NULL ? driver_path : getenv("POJAV_NATIVEDIR");
+    // Only attempt Turnip on Adreno (POJAV_LOAD_TURNIP) or when an actual driver plugin
+    // was selected (its path differs from the launcher's own native library dir).
+    const char* pojav_native = getenv("POJAV_NATIVEDIR");
+    int has_driver_plugin = driver_path != NULL && pojav_native != NULL
+            && strcmp(driver_path, pojav_native) != 0;
+    if(getenv("POJAV_LOAD_TURNIP") == NULL && !has_driver_plugin) return NULL;
     if(!linker_ns_load(native_dir)) return NULL;
+    const char* cache_dir = getenv("TMPDIR");
     void* linkerhook = linker_ns_dlopen("liblinkerhook.so", RTLD_LOCAL | RTLD_NOW);
     if(linkerhook == NULL) return NULL;
     void* turnip_driver_handle = linker_ns_dlopen("libvulkan_freedreno.so", RTLD_LOCAL | RTLD_NOW);
@@ -139,7 +145,7 @@ static void set_vulkan_ptr(void* ptr) {
 }
 
 void load_vulkan() {
-    if(android_get_device_api_level() >= 28) { // the loader does not support below that
+    if(getenv("VULKAN_DRIVER_SYSTEM") == NULL && android_get_device_api_level() >= 28) { // the loader does not support below that
 #ifdef ADRENO_POSSIBLE
         void* result = load_turnip_vulkan();
         if(result != NULL) {

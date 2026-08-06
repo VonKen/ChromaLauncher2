@@ -49,6 +49,9 @@ import androidx.fragment.app.FragmentActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import com.chromalauncher.app.data.Renderer;
+import com.chromalauncher.app.manager.RendererManager;
+
 import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
 import net.kdt.pojavlaunch.lifecycle.ContextExecutorTask;
 import net.kdt.pojavlaunch.lifecycle.LifecycleAwareAlertDialog;
@@ -1377,6 +1380,12 @@ public final class Tools {
             if(rendererId.contains("ltw") && (!deviceHasOpenGLES3 || !appHasLtw)) continue;
             rendererIds.add(rendererId);
             rendererNames.add(defaultRendererNames[i]);
+        }
+        // Append plugin renderers (Fold Craft Launcher plugin system)
+        for(Renderer renderer : RendererManager.INSTANCE.getRendererList()) {
+            if(rendererIds.contains(renderer.getId())) continue;
+            rendererIds.add(renderer.getId());
+            rendererNames.add(renderer.getDes());
         }
         sCompatibleRenderers = new RenderersList(rendererIds,
                 rendererNames.toArray(new String[0]));

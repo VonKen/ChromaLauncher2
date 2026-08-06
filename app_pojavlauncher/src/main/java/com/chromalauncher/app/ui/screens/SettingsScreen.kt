@@ -19,28 +19,31 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.chromalauncher.app.ui.components.ChromaButton
 import com.chromalauncher.app.ui.components.ChromaCard
 import com.chromalauncher.app.ui.components.ChromaDivider
 import com.chromalauncher.app.ui.components.ChromaTopBar
 import com.chromalauncher.app.ui.components.VersionDropdown
+import com.chromalauncher.app.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = viewModel()
 ) {
-    var memoryAllocation by remember { mutableFloatStateOf(1024f) }
-    var useAlternateSurface by remember { mutableStateOf(false) }
-    var forceEnglish by remember { mutableStateOf(false) }
-    var selectedRenderer by remember { mutableStateOf("Holy GL4ES") }
-    var selectedJava by remember { mutableStateOf("Java 8") }
+    val state by viewModel.uiState.collectAsState()
+
+    val rendererNames = state.rendererOptions.map { it.second }
+    val selectedRendererName = state.rendererOptions
+        .firstOrNull { it.first == state.rendererId }
+        ?.second
+        ?: ""
 
     Column(
         modifier = Modifier
@@ -71,13 +74,21 @@ fun SettingsScreen(
             ChromaCard {
                 Column(modifier = Modifier.padding(16.dp)) {
                     VersionDropdown(
-                        selectedVersion = selectedRenderer,
-                        versions = listOf(
-                            "Holy GL4ES",
-                            "Zink (Vulkan)",
-                            "LTW (OpenGL ES 3)"
-                        ),
-                        onVersionSelected = { selectedRenderer = it }
+                        selectedVersion = selectedRendererName,
+                        versions = rendererNames,
+                        onVersionSelected = { name ->
+                            state.rendererOptions.firstOrNull { it.second == name }
+                                ?.let { viewModel.updateRenderer(it.first) }
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ChromaButton(
+                        text = "Refresh renderer plugins",
+                        onClick = { viewModel.refreshPlugins() },
+                        gradient = false,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
                     )
                 }
             }
@@ -94,9 +105,9 @@ fun SettingsScreen(
             ChromaCard {
                 Column(modifier = Modifier.padding(16.dp)) {
                     VersionDropdown(
-                        selectedVersion = selectedJava,
+                        selectedVersion = "Java 8",
                         versions = listOf("Java 8", "Java 17", "Java 21"),
-                        onVersionSelected = { selectedJava = it }
+                        onVersionSelected = {}
                     )
                 }
             }
@@ -113,12 +124,12 @@ fun SettingsScreen(
             ChromaCard {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "${memoryAllocation.toInt()} MB",
+                        text = "${state.memoryMb} MB",
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Slider(
-                        value = memoryAllocation,
-                        onValueChange = { memoryAllocation = it },
+                        value = state.memoryMb.toFloat(),
+                        onValueChange = { viewModel.updateMemory(it.toInt()) },
                         valueRange = 256f..4096f,
                         steps = 15,
                         colors = SliderDefaults.colors(
@@ -143,15 +154,42 @@ fun SettingsScreen(
                     SettingToggle(
                         title = "Alternate Surface Rendering",
                         subtitle = "May help performance on GPU-bound scenarios",
-                        checked = useAlternateSurface,
-                        onCheckedChange = { useAlternateSurface = it }
+                        checked = state.useAlternateSurface,
+                        onCheckedChange = { viewModel.toggleAlternateSurface() }
                     )
                     SettingToggle(
                         title = "Force English",
                         subtitle = "Show original strings",
-                        checked = forceEnglish,
-                        onCheckedChange = { forceEnglish = it }
+                        checked = state.forceEnglish,
+                        onCheckedChange = { viewModel.toggleForceEnglish() }
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Vulkan driver
+            Text(
+                text = "Vulkan Driver",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            ChromaCard {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    SettingToggle(
+                        title = "Use system VK driver",
+                        subtitle = "Disable to use a packaged driver plugin (e.g. Turnip)",
+                        checked = state.vkDriverSystem,
+                        onCheckedChange = { viewModel.toggleVkDriverSystem() }
+                    )
+                    if (!state.vkDriverSystem) {
+                        VersionDropdown(
+                            selectedVersion = state.vkDriver,
+                            versions = state.vkDriverOptions,
+                            onVersionSelected = { viewModel.updateVkDriver(it) }
+                        )
+                    }
                 }
             }
 
