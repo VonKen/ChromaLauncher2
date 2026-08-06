@@ -40,8 +40,23 @@ object DriverPlugin {
     @SuppressLint("QueryPermissionsNeeded")
     fun init(context: Context) {
         isInit = true
+        driverList.clear()
         driverList.add(Driver("Turnip", context.applicationInfo.nativeLibraryDir))
         selected = driverList.first()
+        scan(context)
+    }
+
+    /** Re-scans installed driver plugins, keeping the currently selected driver. */
+    @JvmStatic
+    @SuppressLint("QueryPermissionsNeeded")
+    fun refresh(context: Context) {
+        val previous = selected
+        init(context)
+        val kept = driverList.find { it.driver == previous.driver }
+        if (kept != null) selected = kept
+    }
+
+    private fun scan(context: Context) {
         val queryIntentActivities =
             context.packageManager.queryIntentActivities(Intent("android.intent.action.MAIN"),
                 PACKAGE_FLAGS
