@@ -62,6 +62,7 @@ import net.kdt.pojavlaunch.services.GameService;
 import net.kdt.pojavlaunch.services.JvmForegroundService;
 import net.kdt.pojavlaunch.tasks.AsyncAssetManager;
 import net.kdt.pojavlaunch.utils.JREUtils;
+import net.kdt.pojavlaunch.utils.CrashWatchdog;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;
 import net.kdt.pojavlaunch.utils.RendererCompatUtil;
@@ -232,6 +233,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             if(!latestLogFile.exists() && !latestLogFile.createNewFile())
                 throw new IOException("Failed to create a new log file");
             Logger.begin(latestLogFile.getAbsolutePath());
+            CrashWatchdog.checkLastSession(this);
 
             mClipboardProvider = new AndroidClipboardProvider(getApplicationContext());
             GLFW.setClipboardImpl(mClipboardProvider);

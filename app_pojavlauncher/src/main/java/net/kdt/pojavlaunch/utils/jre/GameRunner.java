@@ -13,6 +13,7 @@ import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.authenticator.accounts.Account;
 import net.kdt.pojavlaunch.instances.Instance;
 import net.kdt.pojavlaunch.utils.SVCNativePatcher;
+import net.kdt.pojavlaunch.utils.CrashWatchdog;
 import net.kdt.pojavlaunch.lifecycle.LifecycleAwareAlertDialog;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 import net.kdt.pojavlaunch.multirt.Runtime;
@@ -300,6 +301,7 @@ public class GameRunner {
 
         Log.i("GameRunner", "Running with "+ launchArgs.toString());
 
+        CrashWatchdog.markGameStart();
         try {
             JavaRunner.nativeSetupExit(activity);
             JavaRunner.startJvm(runtime, javaArgList, launchClassPath, versionInfo.mainClass, launchArgs);
@@ -310,6 +312,8 @@ public class GameRunner {
             if(LifecycleAwareAlertDialog.haltOnDialog(activity.getLifecycle(), activity, dialogCreator)) {
                 return;
             }
+        } finally {
+            CrashWatchdog.markGameExited();
         }
 
         Tools.fullyExit();

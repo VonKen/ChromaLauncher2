@@ -52,6 +52,7 @@ import net.kdt.pojavlaunch.instances.Instance;
 import net.kdt.pojavlaunch.lifecycle.ContextExecutor;
 import net.kdt.pojavlaunch.lifecycle.ContextExecutorTask;
 import net.kdt.pojavlaunch.utils.HashUtils;
+import net.kdt.pojavlaunch.utils.CrashWatchdog;
 import net.kdt.pojavlaunch.utils.memory.MemoryHoleFinder;
 import net.kdt.pojavlaunch.utils.memory.SelfMapsParser;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
@@ -549,6 +550,7 @@ public final class Tools {
     }
 
     public static void fullyExit() {
+        CrashWatchdog.markGameExited();
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
