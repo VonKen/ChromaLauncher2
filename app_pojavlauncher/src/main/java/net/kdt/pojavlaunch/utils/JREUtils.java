@@ -5,6 +5,8 @@ import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_VSYNC_IN_ZINK;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_ZINK_PREFER_SYSTEM_DRIVER;
 
 import android.content.*;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.system.*;
 import android.util.*;
 
@@ -184,9 +186,20 @@ public class JREUtils {
     		modRuntimeDir.mkdirs();
 		}
 		envMap.put("MOD_ANDROID_RUNTIME", modRuntimeDir.getAbsolutePath());
-
         setupAngleEnv(context, envMap);
         setupFfmpegEnv(context, envMap);
+
+        // Identify this launcher so graphics backends can gate their behavior on it.
+        // MobileGlues reads FCL_VERSION_CODE to decide whether it may trust its own
+        // config.json; without it the layer falls back to a "generic launcher" preset
+        // that force-enables GL 4.5 Direct State Access, which Veil uses to create
+        // framebuffers and which MobileGlues cannot make framebuffer-complete.
+        try {
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            envMap.put("FCL_VERSION_CODE", String.valueOf(packageInfo.versionCode));
+        } catch (PackageManager.NameNotFoundException ignored) {
+        }
+
         // Init mesa renderers
         MesaUtils.initEnvironment(context, renderer, envMap);
 
