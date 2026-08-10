@@ -269,6 +269,7 @@
     <string name="main_add_account">Add account</string>
     <string name="tasks_ongoing">Tasks are in progress, please wait</string>
     <string name="no_saved_accounts">No saved accounts</string>
+    <string name="mg_all_files_access_needed">MobileGlues needs \"All files access\" to store its config. Grant it on the next screen, then tap play again.</string>
     <string name="mc_download_failed">Failed to download the game! This could be due to bad network connection, incorrectly placed files, etc..</string>
     <string name="xerr_unknown">Unknown Xbox Live API error %d</string>
     <string name="xerr_no_account">You don\'t seem to have an Xbox Live account. Please log in once on https://minecraft.net/ and try again.</string>

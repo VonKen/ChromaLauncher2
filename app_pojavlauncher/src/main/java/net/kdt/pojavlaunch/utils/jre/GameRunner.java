@@ -1,11 +1,18 @@
 package net.kdt.pojavlaunch.utils.jre;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.chromalauncher.app.manager.RendererManager;
 
 import net.kdt.pojavlaunch.Architecture;
 import net.kdt.pojavlaunch.JVersionList;
@@ -143,6 +150,18 @@ public class GameRunner {
 
     public static void launchGame(final AppCompatActivity activity, Account account,
                                   Instance instance, String versionId, File[] classpath, String rendererName) throws Throwable {
+        // MobileGlues writes its config from within the game process and crashes on
+        // startup when it cannot reach the filesystem. Ask for All files access
+        // before launching instead of letting the native GL layer die silently.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                && RendererManager.INSTANCE.isMobileGlues(rendererName)
+                && !Environment.isExternalStorageManager()) {
+            Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                    Uri.parse("package:" + activity.getPackageName()));
+            permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activity.startActivity(permissionIntent);
+            return;
+        }
         int freeDeviceMemory = Tools.getFreeDeviceMemory(activity);
         int localeString;
         int freeAddressSpace = Architecture.is32BitsDevice() ? Tools.getMaxContinuousAddressSpaceSize() : -1;

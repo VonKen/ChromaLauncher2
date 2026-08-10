@@ -53,4 +53,18 @@ object RendererManager {
                 id = id
             )
     }
+
+    @JvmStatic
+    fun isMobileGlues(id: String): Boolean {
+        val renderer = getRenderer(id)
+        val haystack = listOf(
+            renderer.id, renderer.name, renderer.des,
+            renderer.glName, renderer.eglName, renderer.path
+        )
+        return haystack.any {
+            it.contains("mobileglues", ignoreCase = true) ||
+                it.contains("glues", ignoreCase = true) ||
+                it.contains("moaswies", ignoreCase = true)
+        }
+    }
 }

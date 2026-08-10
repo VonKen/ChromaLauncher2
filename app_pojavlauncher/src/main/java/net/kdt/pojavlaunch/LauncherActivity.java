@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.system.Os;
 import android.view.View;
 import android.widget.ImageButton;
@@ -24,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 
+import com.chromalauncher.app.manager.RendererManager;
 import com.kdt.mcgui.ProgressLayout;
 
 import net.kdt.pojavlaunch.authenticator.accounts.Accounts;
@@ -128,6 +132,17 @@ public class LauncherActivity extends BaseActivity {
         if(Accounts.getCurrent() == null){
             Toast.makeText(this, R.string.no_saved_accounts, Toast.LENGTH_LONG).show();
             ExtraCore.setValue(ExtraConstants.SELECT_AUTH_METHOD, true);
+            return false;
+        }
+        // MobileGlues needs All files access to write its config from the game
+        // process; ask for it before downloading/launching so it doesn't crash.
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                && RendererManager.INSTANCE.isMobileGlues(selectedInstance.getLaunchRenderer())
+                && !Environment.isExternalStorageManager()){
+            Toast.makeText(this, R.string.mg_all_files_access_needed, Toast.LENGTH_LONG).show();
+            Intent permissionIntent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivity(permissionIntent);
             return false;
         }
         String normalizedVersionId = MoJsonExtras.normalizeVersionId(selectedInstance.versionId);
