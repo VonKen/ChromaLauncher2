@@ -29,10 +29,17 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build debug APK
-      run: ./gradlew assembleDebug --no-daemon
+      run: ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build-apk.log
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: chroma-launcher-debug
         path: app_pojavlauncher/build/outputs/apk/debug/*.apk
+
+    - name: Upload build log
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: chroma-launcher-build-log
+        path: build-apk.log
