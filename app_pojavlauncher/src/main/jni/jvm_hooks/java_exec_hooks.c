@@ -1,13 +1,14 @@
 //
 // Created by maks on 05.01.2025.
 //
-
 #include "jvm_hooks.h"
 #include <libgen.h>
 #include <string.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <limits.h>
 
+#include "environ/environ.h"
 #include "utils.h"
 
 static jint (*orig_ProcessImpl_forkAndExec)(JNIEnv *env, jobject process, jint mode, jbyteArray helperpath, jbyteArray prog, jbyteArray argBlock, jint argc, jbyteArray envBlock, jint envc, jbyteArray dir, jintArray std_fds, jboolean redirectErrorStream);
@@ -44,17 +45,15 @@ static jint hooked_ProcessImpl_forkAndExec(JNIEnv *env, jobject process, jint mo
     const char *pProg = (char *)((*env)->GetByteArrayElements(env, prog, NULL));
     const char* pProgBaseName = basename(pProg);
     const size_t basename_len = strlen(pProgBaseName);
-    char prog_basename[basename_len];
-    memcpy(&prog_basename, pProgBaseName, basename_len + 1);
+    char prog_basename[basename_len + 1];
+    memcpy(prog_basename, pProgBaseName, basename_len + 1);
     (*env)->ReleaseByteArrayElements(env, prog, (jbyte *)pProg, 0);
 
     if(strcmp(prog_basename, "xdg-open") == 0) {
         // When invoking xdg-open, send the open URL into Android
-        jbyte* elements = (*env)->GetByteArrayElements(env, argBlock, NULL);
-        openLink((const char*) elements);
-        (*env)->ReleaseByteArrayElements(env, argBlock, elements, JNI_ABORT);
+        Java_org_lwjgl_glfw_CallbackBridge_nativeClipboard(env, NULL, CLIPBOARD_OPEN, argBlock);
         return 0;
-    }else if(strcmp(prog_basename, "ffmpeg") == 0) {
+    } else if(strcmp(prog_basename, "ffmpeg") == 0) {
         // When invoking ffmpeg, always replace the program path with the path to ffmpeg from the plugin.
         // This allows us to replace the executable name, which is needed because android doesn't allow
         // us to put files that don't start with "lib" and end with ".so" into folders that we can execute
@@ -64,7 +63,9 @@ static jint hooked_ProcessImpl_forkAndExec(JNIEnv *env, jobject process, jint mo
         // they may interfere with ffmpeg dependencies.
         const char* ffmpeg_path = getenv("POJAV_FFMPEG_PATH");
         if(ffmpeg_path != NULL) {
-            replaceLibPathInEnvBlock(env, &envBlock, &envc, dirname(ffmpeg_path));
+            char ffmpeg_path_copy[PATH_MAX];
+            snprintf(ffmpeg_path_copy, sizeof(ffmpeg_path_copy), "%s", ffmpeg_path);
+            replaceLibPathInEnvBlock(env, &envBlock, &envc, dirname(ffmpeg_path_copy));
             prog = stringToBytes(env, ffmpeg_path);
         }
     }
@@ -73,32 +74,17 @@ static jint hooked_ProcessImpl_forkAndExec(JNIEnv *env, jobject process, jint mo
 
 // Hook the forkAndExec method in the Java runtime for custom executable overriding.
 void hookExec(JNIEnv *env) {
-    void* libjava = dlopen("libjava.so", RTLD_NOLOAD);
-    if(libjava == NULL) {
-        printf("Failed to register forkAndExec: libjava not found\n");
-        return;
-    }
     jclass hookClass;
-    orig_ProcessImpl_forkAndExec = dlsym(libjava, "Java_java_lang_UNIXProcess_forkAndExec");
+    orig_ProcessImpl_forkAndExec = dlsym(RTLD_DEFAULT, "Java_java_lang_UNIXProcess_forkAndExec");
     if (!orig_ProcessImpl_forkAndExec) {
-        orig_ProcessImpl_forkAndExec = dlsym(libjava, "Java_java_lang_ProcessImpl_forkAndExec");
+        orig_ProcessImpl_forkAndExec = dlsym(RTLD_DEFAULT, "Java_java_lang_ProcessImpl_forkAndExec");
         hookClass = (*env)->FindClass(env, "java/lang/ProcessImpl");
     } else {
         hookClass = (*env)->FindClass(env, "java/lang/UNIXProcess");
-    }
-    if(hookClass == NULL) {
-        (*env)->ExceptionDescribe(env);
-        (*env)->ExceptionClear(env);
-        return;
     }
     JNINativeMethod methods[] = {
             {"forkAndExec", "(I[B[B[BI[BI[B[IZ)I", (void *)&hooked_ProcessImpl_forkAndExec}
     };
     (*env)->RegisterNatives(env, hookClass, methods, 1);
-    if((*env)->ExceptionCheck(env)) {
-        (*env)->ExceptionDescribe(env);
-        (*env)->ExceptionClear(env);
-    }else {
-        printf("Registered forkAndExec\n");
-    }
+    printf("Registered forkAndExec\n");
 }
