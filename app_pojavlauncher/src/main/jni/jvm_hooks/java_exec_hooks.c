@@ -350,7 +350,13 @@ void hookExec(JNIEnv *env) {
         (*env)->ExceptionDescribe(env);
         (*env)->ExceptionClear(env);
     } else {
-        printf("Registered forkAndExec\n");
+        printf("Registered forkAndExec [exec_hooks v2 dream-displays]\n");
+        const char *ff = getenv("POJAV_FFMPEG_PATH");
+        if (ff == NULL) {
+            printf("exec_hooks WARN: POJAV_FFMPEG_PATH is not set, ffmpeg launches will NOT be redirected\n");
+        } else {
+            printf("exec_hooks: POJAV_FFMPEG_PATH=%s (exists: %s)\n", ff, access(ff, X_OK) == 0 ? "yes, executable" : "NO or not executable");
+        }
         ensureFfmpegPlaceholders();
     }
 }
